@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import numpy as np
 from fractions import Fraction
+
 
 # class RectLimitSegment:
 #     def __init__(self, rect, ):
@@ -23,6 +25,14 @@ class RectangleLayout:
 
     def max_y(self):
         return self.y + self.height
+
+    def __eq__(self, other):
+        return (self.x, self.y, self.width, self.height) \
+            == (other.x, other.y, other.width, other.height)
+
+    def __str__(self):
+        return 'Origin: (' + str(self.x) + ',' + str(self.y) + '). W: ' \
+            + str(self.width) + '. H: ' + str(self.height)
 
     # Is the side "closed"? (no space for more rectangles)
 
@@ -107,7 +117,7 @@ def get_topleft_corner(B, R):
     return x, y
 
 
-def split_rectangle():
+def _split_rectangle():
     # Background rectangle
     B = RectangleLayout(Fraction(0, 1), Fraction(0, 1),
                         Fraction(1, 1), Fraction(1, 1))
@@ -117,5 +127,46 @@ def split_rectangle():
     print("Next corner:", x, ",", y)
 
 
+# r_idx: index to rectangle to be split
+# N: final number of rectangles
+# R: current list of rectangles, a new one will be appended
+# E: list of equations, it will be modified
+def split_rectangle_vertically(r_idx, N, R, E):
+    # Modify r and create a new rectangle
+    r = R[r_idx]
+    r.width /= 2
+    r2 = RectangleLayout(r.x + r.width, r.y, r.width, r.height)
+    index = len(R)
+    R.append(r2)
+    # Modify equations appropriately
+    # w_old -> w_1 + w_2
+    for eq in E:
+        if eq[r_idx] != 0:
+            eq[index] = eq[r_idx]
+    # h_old -> h_2 iff line to the right of r_old
+    for eq in E:
+        v_1 = eq[N + r_idx]
+        if v_1 != 0:
+            # Different sign implies rectange on different side to r
+            for i, v in enumerate(eq[N:]):
+                # We only have 0, 1 or -1 as possible values
+                if v != 0 and v != v_1 and R[r_idx].x < R[i].x:
+                    eq[N + index] = v_1
+                    eq[N + r_idx] = 0
+    # h_1 - h_2 = 0
+    new_eq = np.zeros(2*N)
+    new_eq[N + r_idx] = 1
+    new_eq[N + index] = -1
+    E = np.vstack([E, new_eq])
+    return R, E
+
+
+# Data modelling.
+# N: final number of squares
+# Equations contain 2*N variables: w1,..,wN,h1,..,hN
+# Final number of equations will be N+1
+
 if __name__ == '__main__':
-    split_rectangle()
+    R = [RectangleLayout(Fraction(0, 1), Fraction(0, 1),
+                         Fraction(1, 1), Fraction(1, 1))]
+    _split_rectangle()
