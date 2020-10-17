@@ -1,7 +1,5 @@
 import numpy as np
 import unittest
-from copy import deepcopy
-from fractions import Fraction
 import rectangles as r
 
 
@@ -12,111 +10,61 @@ class TestStringMethods(unittest.TestCase):
         for ri in R:
             print(ri)
 
-    def test_split_rectangle_vertically(self):
-        N = 3
-        R = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                               Fraction(1, 1), Fraction(1, 1))]
-        E = np.zeros([2, 2*N])
-        # Initial equations w1 = 1, h1 = 1
-        E[0, 0] = 1
-        E[1, N] = 1
+    def test_diagonal_rectangulation_3rect(self):
+        B = r.do_diagonal_rectangulation([0, 1, 2])
+        print(B)
+        Bc = np.array([[0, 1, 2],
+                       [0, 1, 2],
+                       [0, 1, 2]],
+                      dtype=int)
+        self.assertTrue((B == Bc).all())
+        B = r.do_diagonal_rectangulation([2, 1, 0])
+        print(B)
+        Bc = np.array([[0, 0, 0],
+                       [1, 1, 1],
+                       [2, 2, 2]],
+                      dtype=int)
+        self.assertTrue((B == Bc).all())
+        B = r.do_diagonal_rectangulation([1, 0, 2])
+        print(B)
+        Bc = np.array([[0, 0, 2],
+                       [1, 1, 2],
+                       [1, 1, 2]],
+                      dtype=int)
+        self.assertTrue((B == Bc).all())
 
-        R, E = r.split_rectangle_vertically(0, N, R, E)
-        self.print_rects(R)
-        Rc = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                                Fraction(1, 2), Fraction(1, 1)),
-              r.RectangleLayout(Fraction(1, 2), Fraction(0, 1),
-                                Fraction(1, 2), Fraction(1, 1))]
-        Ec = np.array([[1, 1, 0, 0,  0, 0],
-                       [0, 0, 0, 1,  0, 0],
-                       [0, 0, 0, 1, -1, 0]])
-        self.assertTrue(R == Rc)
-        self.assertTrue((E == Ec).all())
+    def test_diagonal_rectangulation_5rect(self):
+        B = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
+        print(B)
+        Bc = np.array([[0, 1, 1, 3, 3],
+                       [0, 1, 1, 3, 3],
+                       [2, 2, 2, 3, 3],
+                       [2, 2, 2, 3, 3],
+                       [2, 2, 2, 4, 4]],
+                      dtype=int)
+        self.assertTrue((B == Bc).all())
 
-        R1 = deepcopy(R)
-        E1 = deepcopy(E)
-        R, E = r.split_rectangle_vertically(0, N, R, E)
-        self.print_rects(R)
-        Rc = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                                Fraction(1, 4), Fraction(1, 1)),
-              r.RectangleLayout(Fraction(1, 2), Fraction(0, 1),
-                                Fraction(1, 2), Fraction(1, 1)),
-              r.RectangleLayout(Fraction(1, 4), Fraction(0, 1),
-                                Fraction(1, 4), Fraction(1, 1))]
-        Ec = np.array([[1, 1, 1, 0,  0,  0],
-                       [0, 0, 0, 1,  0,  0],
-                       [0, 0, 0, 0, -1,  1],
-                       [0, 0, 0, 1,  0, -1]])
-        self.assertTrue(R == Rc)
-        self.assertTrue((E == Ec).all())
-
-        R1, E1 = r.split_rectangle_vertically(1, N, R1, E1)
-        self.print_rects(R)
-        Rc = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                                Fraction(1, 2), Fraction(1, 1)),
-              r.RectangleLayout(Fraction(1, 2), Fraction(0, 1),
-                                Fraction(1, 4), Fraction(1, 1)),
-              r.RectangleLayout(Fraction(3, 4), Fraction(0, 1),
-                                Fraction(1, 4), Fraction(1, 1))]
-        Ec = np.array([[1, 1, 1, 0,  0,  0],
-                       [0, 0, 0, 1,  0,  0],
-                       [0, 0, 0, 1, -1,  0],
-                       [0, 0, 0, 0,  1, -1]])
-        self.assertTrue(R1 == Rc)
-        self.assertTrue((E1 == Ec).all())
-
-    def test_split_rectangle_horizontally(self):
-        N = 3
-        R = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                               Fraction(1, 1), Fraction(1, 1))]
-        E = np.zeros([2, 2*N])
-        # Initial equations w1 = 1, h1 = 1
-        E[0, 0] = 1
-        E[1, N] = 1
-
-        R, E = r.split_rectangle_horizontally(0, N, R, E)
-        self.print_rects(R)
-        Rc = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                                Fraction(1, 1), Fraction(1, 2)),
-              r.RectangleLayout(Fraction(0, 1), Fraction(1, 2),
-                                Fraction(1, 1), Fraction(1, 2))]
-        Ec = np.array([[1,  0, 0, 0, 0, 0],
-                       [0,  0, 0, 1, 1, 0],
-                       [1, -1, 0, 0, 0, 0]])
-        self.assertTrue(R == Rc)
-        self.assertTrue((E == Ec).all())
-
-        R1 = deepcopy(R)
-        E1 = deepcopy(E)
-        R, E = r.split_rectangle_horizontally(0, N, R, E)
-        self.print_rects(R)
-        Rc = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                                Fraction(1, 1), Fraction(1, 4)),
-              r.RectangleLayout(Fraction(0, 1), Fraction(1, 2),
-                                Fraction(1, 1), Fraction(1, 2)),
-              r.RectangleLayout(Fraction(0, 1), Fraction(1, 4),
-                                Fraction(1, 1), Fraction(1, 4))]
-        Ec = np.array([[1,  0,  0, 0, 0, 0],
-                       [0,  0,  0, 1, 1, 1],
-                       [0, -1,  1, 0, 0, 0],
-                       [1,  0, -1, 0, 0, 0]])
-        self.assertTrue(R == Rc)
-        self.assertTrue((E == Ec).all())
-
-        R1, E1 = r.split_rectangle_horizontally(1, N, R1, E1)
-        self.print_rects(R1)
-        Rc = [r.RectangleLayout(Fraction(0, 1), Fraction(0, 1),
-                                Fraction(1, 1), Fraction(1, 2)),
-              r.RectangleLayout(Fraction(0, 1), Fraction(1, 2),
-                                Fraction(1, 1), Fraction(1, 4)),
-              r.RectangleLayout(Fraction(0, 1), Fraction(3, 4),
-                                Fraction(1, 1), Fraction(1, 4))]
-        Ec = np.array([[1,  0,  0, 0, 0, 0],
-                       [0,  0,  0, 1, 1, 1],
-                       [1, -1,  0, 0, 0, 0],
-                       [0,  1, -1, 0, 0, 0]])
-        self.assertTrue(R1 == Rc)
-        self.assertTrue((E1 == Ec).all())
+    def test_diagonal_rectangulation_15rect(self):
+        B = r.do_diagonal_rectangulation(
+            [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
+        print(B)
+        Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
+                       [1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
+                       [1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
+                       [1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
+                       [4, 4, 4, 4, 4, 5, 5, 5, 8, 9, 9, 11, 11, 11, 11],
+                       [4, 4, 4, 4, 4, 5, 5, 5, 8, 9, 9, 11, 11, 11, 11],
+                       [6, 6, 6, 6, 6, 6, 6, 6, 8, 9, 9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14],
+                       [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
+                      dtype=int)
+        self.assertTrue((B == Bc).all())
 
 
 if __name__ == '__main__':

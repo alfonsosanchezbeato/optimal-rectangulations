@@ -195,6 +195,55 @@ def split_rectangle_horizontally(r_idx, N, R, E):
     return R, E
 
 
+# We consider a cell taken if its value points to a rectangle or if
+# outside background.
+def is_b_empty(B, N, i, j):
+    if i < 0 or i >= N or j < 0 or j >= N:
+        return False
+    return B[i, j] < 0
+
+
+# Do a diagonal rectangulation
+# seq: sequence with order in which to create the rectangles.
+#      Lenght N, with values between 0 and N-1.
+def do_diagonal_rectangulation(seq):
+    N = len(seq)
+    # Background rectangle, as a grid where we will indicate the ovelaying
+    # rectangle in each cell (each of them can span acrosss multiple cells).
+    B = np.full((N, N), -1, dtype=int)
+    for r in seq:
+        # Top-left corner (top, left)
+        top = r
+        left = r
+        if is_b_empty(B, N, r-1, r-1):
+            # Go left
+            while is_b_empty(B, N, top, left - 1):
+                left -= 1
+        else:
+            # Go up
+            while top - 1 >= 0 and not is_b_empty(B, N, top - 1, left - 1):
+                top -= 1
+        # Bottom-right corner
+        bottom = r
+        right = r
+        if is_b_empty(B, N, r+1, r+1):
+            # Go down
+            while is_b_empty(B, N, bottom + 1, right):
+                bottom += 1
+        else:
+            # Go right
+            while right + 1 <= N - 1 and \
+                  not is_b_empty(B, N, bottom + 1, right + 1):
+                right += 1
+        # Fill inside B
+        print('Rect: ({},{}), ({},{})'.format(top, left, bottom, right))
+        for i in range(top, bottom + 1):
+            for j in range(left, right + 1):
+                B[i, j] = r
+
+    return B
+
+
 # Data modelling.
 # N: final number of squares
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
