@@ -236,12 +236,62 @@ def do_diagonal_rectangulation(seq):
                   not is_b_empty(B, N, bottom + 1, right + 1):
                 right += 1
         # Fill inside B
-        print('Rect: ({},{}), ({},{})'.format(top, left, bottom, right))
+        # print('Rect: ({},{}), ({},{})'.format(top, left, bottom, right))
         for i in range(top, bottom + 1):
             for j in range(left, right + 1):
                 B[i, j] = r
 
     return B
+
+
+# Creates equations for the rectangulation restrictions
+# B: rectangulation as created by do_diagonal_rectangulation
+# w: full width
+# h: full height
+def build_rectangulation_equations(B):
+    N = B.shape[0]
+    # Top and left of rectangulation
+    E = np.zeros((2, 2*N))
+    for j in range(N):
+        E[0, B[0, j]] = 1
+    for i in range(N):
+        E[1, N + B[i, 0]] = 1
+    # Horizontal segments
+    eq = None
+    for i in range(N - 1):
+        for j in range(N):
+            if B[i, j] != B[i + 1, j]:
+                # Different rectangle up and down
+                if eq is None:
+                    eq = np.zeros(2*N)
+                eq[B[i, j]] = 1
+                eq[B[i + 1, j]] = -1
+            else:
+                # Close equation if we were creating one
+                if eq is not None:
+                    E = np.vstack([E, eq])
+                    eq = None
+        if eq is not None:
+            E = np.vstack([E, eq])
+            eq = None
+    # Vertical segments
+    for j in range(N - 1):
+        for i in range(N):
+            if B[i, j] != B[i, j + 1]:
+                # Different rectangle left and right
+                if eq is None:
+                    eq = np.zeros(2*N)
+                eq[N + B[i, j]] = 1
+                eq[N + B[i, j + 1]] = -1
+            else:
+                # Close equation if we were creating one
+                if eq is not None:
+                    E = np.vstack([E, eq])
+                    eq = None
+        if eq is not None:
+            E = np.vstack([E, eq])
+            eq = None
+    return E
 
 
 # Data modelling.

@@ -18,6 +18,14 @@ class TestStringMethods(unittest.TestCase):
                        [0, 1, 2]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        E = r.build_rectangulation_equations(B)
+        print(E)
+        Ec = np.array([[ 1.,  1.,  1.,  0.,  0.,  0.],
+                       [ 0.,  0.,  0.,  1.,  0.,  0.],
+                       [ 0.,  0.,  0.,  1., -1.,  0.],
+                       [ 0.,  0.,  0.,  0.,  1., -1.]])
+        self.assertTrue((E == Ec).all())
+
         B = r.do_diagonal_rectangulation([2, 1, 0])
         print(B)
         Bc = np.array([[0, 0, 0],
@@ -25,6 +33,9 @@ class TestStringMethods(unittest.TestCase):
                        [2, 2, 2]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        E = r.build_rectangulation_equations(B)
+        print(E)
+
         B = r.do_diagonal_rectangulation([1, 0, 2])
         print(B)
         Bc = np.array([[0, 0, 2],
@@ -32,6 +43,8 @@ class TestStringMethods(unittest.TestCase):
                        [1, 1, 2]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        E = r.build_rectangulation_equations(B)
+        print(E)
 
     def test_diagonal_rectangulation_5rect(self):
         B = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
@@ -43,21 +56,22 @@ class TestStringMethods(unittest.TestCase):
                        [2, 2, 2, 4, 4]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        E = r.build_rectangulation_equations(B)
+        print(E)
 
     def test_diagonal_rectangulation_15rect(self):
         B = r.do_diagonal_rectangulation(
             [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
-        print(B)
-        Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
-                       [1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
-                       [1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
-                       [1, 1, 2, 3, 3, 3, 3, 3, 3, 3, 3, 11, 11, 11, 11],
-                       [4, 4, 4, 4, 4, 5, 5, 5, 8, 9, 9, 11, 11, 11, 11],
-                       [4, 4, 4, 4, 4, 5, 5, 5, 8, 9, 9, 11, 11, 11, 11],
-                       [6, 6, 6, 6, 6, 6, 6, 6, 8, 9, 9, 11, 11, 11, 11],
-                       [7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 11, 11, 11, 11],
-                       [7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 11, 11, 11, 11],
-                       [7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 9, 11, 11, 11, 11],
+        Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
+                       [1, 1, 2, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
+                       [1, 1, 2, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
+                       [1, 1, 2, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
+                       [4, 4, 4, 4, 4, 5, 5, 5,  8,  9,  9, 11, 11, 11, 11],
+                       [4, 4, 4, 4, 4, 5, 5, 5,  8,  9,  9, 11, 11, 11, 11],
+                       [6, 6, 6, 6, 6, 6, 6, 6,  8,  9,  9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7,  8,  9,  9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7,  8,  9,  9, 11, 11, 11, 11],
+                       [7, 7, 7, 7, 7, 7, 7, 7,  8,  9,  9, 11, 11, 11, 11],
                        [7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10, 11, 11, 11, 11],
                        [7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10, 11, 11, 11, 11],
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14],
@@ -65,6 +79,8 @@ class TestStringMethods(unittest.TestCase):
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        E = r.build_rectangulation_equations(B)
+        print(E)
 
 
 if __name__ == '__main__':
