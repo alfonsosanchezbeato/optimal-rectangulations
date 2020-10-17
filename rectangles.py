@@ -161,6 +161,40 @@ def split_rectangle_vertically(r_idx, N, R, E):
     return R, E
 
 
+# r_idx: index to rectangle to be split
+# N: final number of rectangles
+# R: current list of rectangles, a new one will be appended
+# E: list of equations, it will be modified
+def split_rectangle_horizontally(r_idx, N, R, E):
+    # Modify r and create a new rectangle
+    r = R[r_idx]
+    r.height /= 2
+    r2 = RectangleLayout(r.x, r.y + r.height, r.width, r.height)
+    index = len(R)
+    R.append(r2)
+    # Modify equations appropriately
+    # h_old -> h_1 + h_2
+    for eq in E:
+        if eq[N + r_idx] != 0:
+            eq[N + index] = eq[N + r_idx]
+    # w_old -> w_2 iff line below r_old
+    for eq in E:
+        v_1 = eq[r_idx]
+        if v_1 != 0:
+            # Different sign implies rectange on different side to r
+            for i, v in enumerate(eq[:N]):
+                # We only have 0, 1 or -1 as possible values
+                if v != 0 and v != v_1 and R[r_idx].y < R[i].y:
+                    eq[index] = v_1
+                    eq[r_idx] = 0
+    # w_1 - w_2 = 0
+    new_eq = np.zeros(2*N)
+    new_eq[r_idx] = 1
+    new_eq[index] = -1
+    E = np.vstack([E, new_eq])
+    return R, E
+
+
 # Data modelling.
 # N: final number of squares
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
