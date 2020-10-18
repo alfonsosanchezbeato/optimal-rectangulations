@@ -294,6 +294,44 @@ def build_rectangulation_equations(B):
     return E
 
 
+# E: restrictions on the rectangulation
+# X: contains [w_1,..,w_N,h_1,..,h_N,l_1,..,l_{N+1}]
+#    (widths, heights, and Lagrange multipliers for the N+1 constraints)
+# w: background width
+# h: background height
+# k: desired w_i/h_i aspect ratio
+def get_optimal_rectangles(E, X, w, h, k):
+    n_rect_vars = E.shape[1]
+    N = n_rect_vars//2
+    n_eqs = E.shape[0]
+    indep = np.zeros(n_eqs)
+    indep[0] = w
+    indep[1] = h
+    v = np.matmul(E, X[:n_rect_vars]) - indep
+    # Multiply by Lagrange multipliers now
+    v = np.dot(v, X[n_rect_vars:])
+    # Function to optimize
+    for r in range(1, N):
+        v += (X[0]*X[N] - X[r]*X[N + r])**2
+    # T controls the relation between the two optimization criteria
+    T = 0.5
+    for r in range(N):
+        v += T*(X[r] - k*X[N + r])**2
+    return v
+
+
+def get_derivative(E, X, w, h, k):
+    dLambda = np.zeros(len(X))
+    # Step size
+    step = 1e-3
+    for i in range(len(X)):
+        dX = np.zeros(len(X))
+        dX[i] = step
+        dLambda[i] = (get_optimal_rectangles(E, X + dX, w, h, k)
+                      - get_optimal_rectangles(E, X - dX, w, h, k))/(2*step)
+    return dLambda
+
+
 # Data modelling.
 # N: final number of squares
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
