@@ -320,6 +320,48 @@ def get_optimal_rectangles(E, X, w, h, k):
     return v
 
 
+# Returns the derivatives for the optimization function.
+# E: restrictions on the rectangulation
+# X: contains [w_1,..,w_N,h_1,..,h_N,l_1,..,l_{N+1}]
+#    (widths, heights, and Lagrange multipliers for the N+1 constraints)
+# w: background width
+# h: background height
+# k: desired w_i/h_i aspect ratio
+def get_derivative_from_eqs(E, X, w, h, k):
+    diff = np.zeros(len(X))
+    n_rect_vars = E.shape[1]
+    N = n_rect_vars//2
+    # T controls the relation between the two optimization criteria.
+    # It needs to be quite big to be dominant (~100000)
+    # T = 100000.
+    T = 0.
+    # dF/dw_i
+    for i in range(N):
+        diff[i] = 2*T*(X[i] - k*X[N + i])
+        for j in range(N + 1):
+            diff[i] += X[2*N + j]*E[j, i]
+    for i in range(1, N):
+        diff[i] += -2*X[N + i]*(X[0]*X[N] - X[i]*X[N + i])
+    for i in range(1, N):
+        diff[0] += 2*X[N]*(X[0]*X[N] - X[i]*X[N + i])
+    # dF/dh_i
+    for i in range(N):
+        diff[N + i] = -2*T*k*(X[i] - k*X[N + i])
+        for j in range(N + 1):
+            diff[N + i] += X[2*N + j]*E[j, N + i]
+    for i in range(1, N):
+        diff[N + i] += -2*X[i]*(X[0]*X[N] - X[i]*X[N + i])
+    for i in range(1, N):
+        diff[N] += 2*X[0]*(X[0]*X[N] - X[i]*X[N + i])
+    # dF/dl_j
+    n_eqs = E.shape[0]
+    indep = np.zeros(n_eqs)
+    indep[0] = w
+    indep[1] = h
+    diff[n_rect_vars:] = np.matmul(E, X[:n_rect_vars]) - indep
+    return diff
+
+
 def get_derivative(E, X, w, h, k):
     dLambda = np.zeros(len(X))
     # Step size

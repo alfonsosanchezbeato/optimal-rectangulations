@@ -35,7 +35,7 @@ class TestStringMethods(unittest.TestCase):
         for v in range(3, 6):
             initial_est[v] = h/3
 
-        def dfunc(X): return r.get_derivative(E, X, w, h, k)
+        def dfunc(X): return r.get_derivative_from_eqs(E, X, w, h, k)
 
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimal_rectangles(E, X, w, h, k))
@@ -61,6 +61,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue((B == Bc).all())
         E = r.build_rectangulation_equations(B)
         print(E)
+        # With this method we need quite good initial values...
         initial_est[0] = 330
         initial_est[1] = 350
         initial_est[2] = 166
