@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+import sympy as sp
 from fractions import Fraction
 
 
@@ -360,6 +361,49 @@ def get_derivative_from_eqs(E, X, w, h, k):
     indep[1] = h
     diff[n_rect_vars:] = np.matmul(E, X[:n_rect_vars]) - indep
     return diff
+
+
+# Finds the minimal of the optimization function by solving the linear
+# system of derivatives analytically, by using sympy.
+def solve_rectangle_eqs(E, w, h, k):
+    n_rect_vars = E.shape[1]
+    N = n_rect_vars//2
+    dF = [0]*(3*N + 1)
+    # T controls the relation between the two optimization criteria.
+    # It needs to be quite big to be dominant (~100000)
+    T = 0.
+    # Add symbols (widths, heights, lambdas)
+    W = sp.symbols('w:{}'.format(N))
+    H = sp.symbols('h:{}'.format(N))
+    L = sp.symbols('l:{}'.format(N + 1))
+    # Create the expressions
+    # dF/dw_i
+    for i in range(N):
+        dF[i] = 2*T*(W[i] - k*H[i])
+        for j in range(N + 1):
+            dF[i] += L[j]*E[j, i]
+    for i in range(1, N):
+        dF[i] += -2*H[i]*(W[0]*H[0] - W[i]*H[i])
+    for i in range(1, N):
+        dF[0] += 2*H[0]*(W[0]*H[0] - W[i]*H[i])
+    # dF/dh_i
+    for i in range(N):
+        dF[N + i] = -2*T*k*(W[i] - k*H[i])
+        for j in range(N + 1):
+            dF[N + i] += L[j]*E[j, N + i]
+    for i in range(1, N):
+        dF[N + i] += -2*W[i]*(W[0]*H[0] - W[i]*H[i])
+    for i in range(1, N):
+        dF[N] += 2*W[0]*(W[0]*H[0] - W[i]*H[i])
+    # dF/dl_j
+    for j in range(N + 1):
+        for i in range(N):
+            dF[2*N + j] += E[j, i]*W[i] + E[j, N + i]*H[i]
+    dF[2*N] += -w
+    dF[2*N + 1] += -h
+    # Solve the system
+    print(dF)
+    return sp.solve(dF)
 
 
 def get_derivative(E, X, w, h, k):
