@@ -41,6 +41,8 @@ class TestStringMethods(unittest.TestCase):
         print(X, r.get_optimal_rectangles(E, X, w, h, k))
         print("Using sympy:")
         print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Fitting rectangles:")
+        print(r.solve_fit_rectangles(E, B, w, h, k))
 
         B = r.do_diagonal_rectangulation([2, 1, 0])
         print(B)
@@ -53,8 +55,10 @@ class TestStringMethods(unittest.TestCase):
         print(E)
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimal_rectangles(E, X, w, h, k))
-        print("Using sympy:")
-        print(r.solve_rectangle_eqs(E, w, h, k))
+        # print("Using sympy:")
+        # print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Fitting rectangles:")
+        print(r.solve_fit_rectangles(E, B, w, h, k))
 
         B = r.do_diagonal_rectangulation([1, 0, 2])
         print(B)
@@ -80,8 +84,10 @@ class TestStringMethods(unittest.TestCase):
         initial_est[5] = 200
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimal_rectangles(E, X, w, h, k))
-        print("Using sympy:")
-        print(r.solve_rectangle_eqs(E, w, h, k))
+        # print("Using sympy:")
+        # print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Fitting rectangles:")
+        print(r.solve_fit_rectangles(E, B, w, h, k))
 
     def test_diagonal_rectangulation_5rect(self):
         B = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
@@ -98,8 +104,10 @@ class TestStringMethods(unittest.TestCase):
         w = 400
         h = 200
         k = 1.5
-        print("Using sympy:")
-        print(r.solve_rectangle_eqs(E, w, h, k))
+        # print("Using sympy:")
+        # print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Fitting rectangles:")
+        print(r.solve_fit_rectangles(E, B, w, h, k))
 
     def _test_diagonal_rectangulation_15rect(self):
         B = r.do_diagonal_rectangulation(
