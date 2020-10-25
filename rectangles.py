@@ -371,7 +371,9 @@ def solve_rectangle_eqs(E, w, h, k):
     dF = [0]*(3*N + 1)
     # T controls the relation between the two optimization criteria.
     # It needs to be quite big to be dominant (~100000)
-    T = 0.
+    T = 1.
+    # Factor for size
+    Q = 0.
     # Add symbols (widths, heights, lambdas)
     W = sp.symbols('w:{}'.format(N))
     H = sp.symbols('h:{}'.format(N))
@@ -383,18 +385,18 @@ def solve_rectangle_eqs(E, w, h, k):
         for j in range(N + 1):
             dF[i] += L[j]*E[j, i]
     for i in range(1, N):
-        dF[i] += -2*H[i]*(W[0]*H[0] - W[i]*H[i])
+        dF[i] += -2*Q*H[i]*(W[0]*H[0] - W[i]*H[i])
     for i in range(1, N):
-        dF[0] += 2*H[0]*(W[0]*H[0] - W[i]*H[i])
+        dF[0] += 2*Q*H[0]*(W[0]*H[0] - W[i]*H[i])
     # dF/dh_i
     for i in range(N):
         dF[N + i] = -2*T*k*(W[i] - k*H[i])
         for j in range(N + 1):
             dF[N + i] += L[j]*E[j, N + i]
     for i in range(1, N):
-        dF[N + i] += -2*W[i]*(W[0]*H[0] - W[i]*H[i])
+        dF[N + i] += -2*Q*W[i]*(W[0]*H[0] - W[i]*H[i])
     for i in range(1, N):
-        dF[N] += 2*W[0]*(W[0]*H[0] - W[i]*H[i])
+        dF[N] += 2*Q*W[0]*(W[0]*H[0] - W[i]*H[i])
     # dF/dl_j
     for j in range(N + 1):
         for i in range(N):
