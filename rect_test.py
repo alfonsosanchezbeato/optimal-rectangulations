@@ -55,8 +55,8 @@ class TestStringMethods(unittest.TestCase):
         print(E)
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimal_rectangles(E, X, w, h, k))
-        # print("Using sympy:")
-        # print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Using sympy:")
+        print(r.solve_rectangle_eqs(E, w, h, k))
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
@@ -84,8 +84,8 @@ class TestStringMethods(unittest.TestCase):
         initial_est[5] = 200
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimal_rectangles(E, X, w, h, k))
-        # print("Using sympy:")
-        # print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Using sympy:")
+        print(r.solve_rectangle_eqs(E, w, h, k))
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
@@ -104,8 +104,8 @@ class TestStringMethods(unittest.TestCase):
         w = 400
         h = 200
         k = 1.5
-        # print("Using sympy:")
-        # print(r.solve_rectangle_eqs(E, w, h, k))
+        print("Using sympy:")
+        print(r.solve_rectangle_eqs(E, w, h, k))
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
