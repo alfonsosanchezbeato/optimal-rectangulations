@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sp
 from fractions import Fraction
@@ -483,6 +484,59 @@ def get_derivative(E, X, w, h, k):
         dLambda[i] = (get_optimal_rectangles(E, X + dX, w, h, k)
                       - get_optimal_rectangles(E, X - dX, w, h, k))/(2*step)
     return dLambda
+
+
+# Draw rectangulation
+# B: rectangulation square
+# w_pix: width in pixels
+# h_pix: height in pixels
+def draw_rectangles(B, w_pix, h_pix):
+    # Go horizontal line by line
+    Nx = B.shape[0]
+    Ny = B.shape[1]
+    w_step = w_pix/Nx
+    h_step = h_pix/Ny
+    plt.figure()
+    xs = [0, w_pix]
+    ys = [h_pix, h_pix]
+    plt.plot(xs, ys)
+    xs = [0, 0]
+    ys = [h_pix, 0]
+    plt.plot(xs, ys)
+    xs = [w_pix, w_pix]
+    ys = [0, h_pix]
+    plt.plot(xs, ys)
+    xs = [0, w_pix]
+    ys = [0, 0]
+    plt.plot(xs, ys)
+    for i in range(Ny):
+        for j in range(Nx):
+            if j > 0 and B[i, j] != B[i, j - 1]:
+                # Vertical line
+                xs = [j*w_step, j*w_step]
+                ys = [h_pix - i*h_step, h_pix - (i + 1)*h_step]
+                plt.plot(xs, ys)
+            if i > 0 and B[i, j] != B[i - 1, j]:
+                # Horizontal line
+                xs = [j*w_step, (j + 1)*w_step]
+                ys = [h_pix - i*h_step, h_pix - i*h_step]
+                plt.plot(xs, ys)
+    # Bottom border
+    for j in range(1, Nx):
+        if B[Ny - 1, j] != B[Ny - 1, j - 1]:
+            # Vertical line
+            xs = [j*w_step, j*w_step]
+            ys = [h_step, 0]
+            plt.plot(xs, ys)
+    # Right border
+    for i in range(1, Ny):
+        if B[i, Nx - 1] != B[i - 1, Nx - 1]:
+            # Horizontal line
+            xs = [(Nx - 1)*w_step, Nx*w_step]
+            ys = [h_pix - i*h_step, h_pix - i*h_step]
+            plt.plot(xs, ys)
+
+    plt.show()
 
 
 # Data modelling.

@@ -14,6 +14,7 @@ class TestStringMethods(unittest.TestCase):
     def test_diagonal_rectangulation_3rect(self):
         B = r.do_diagonal_rectangulation([0, 1, 2])
         print(B)
+        r.draw_rectangles(B, 400, 200)
         Bc = np.array([[0, 1, 2],
                        [0, 1, 2],
                        [0, 1, 2]],
@@ -46,6 +47,7 @@ class TestStringMethods(unittest.TestCase):
 
         B = r.do_diagonal_rectangulation([2, 1, 0])
         print(B)
+        r.draw_rectangles(B, 400, 200)
         Bc = np.array([[0, 0, 0],
                        [1, 1, 1],
                        [2, 2, 2]],
@@ -62,6 +64,7 @@ class TestStringMethods(unittest.TestCase):
 
         B = r.do_diagonal_rectangulation([1, 0, 2])
         print(B)
+        r.draw_rectangles(B, 400, 200)
         Bc = np.array([[0, 0, 2],
                        [1, 1, 2],
                        [1, 1, 2]],
@@ -92,6 +95,7 @@ class TestStringMethods(unittest.TestCase):
     def test_diagonal_rectangulation_5rect(self):
         B = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
         print(B)
+        r.draw_rectangles(B, 400, 200)
         Bc = np.array([[0, 1, 1, 3, 3],
                        [0, 1, 1, 3, 3],
                        [2, 2, 2, 3, 3],
