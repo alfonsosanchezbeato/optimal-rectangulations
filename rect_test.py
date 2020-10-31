@@ -134,7 +134,7 @@ class TestStringMethods(unittest.TestCase):
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-    def _test_diagonal_rectangulation_15rect(self):
+    def test_diagonal_rectangulation_15rect(self):
         B = r.do_diagonal_rectangulation(
             [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
         Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
@@ -154,7 +154,18 @@ class TestStringMethods(unittest.TestCase):
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        w = 400
+        h = 200
+        k = 1.5
+        r.draw_rectangles(B, w, h)
         E = r.build_rectangulation_equations(B)
+
+        print("Using sympy:")
+        sol = r.solve_rectangle_eqs(E, w, h, k)
+        print(sol)
+        mat_sol = self.get_matrix_from_solution(15, sol)
+        r.draw_resized_rectangles(B, mat_sol, w, h)
+
         print(E)
 
 
