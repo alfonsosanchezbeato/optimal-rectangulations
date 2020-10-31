@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import numpy as np
 import sympy as sp
 from fractions import Fraction
@@ -536,6 +537,52 @@ def draw_rectangles(B, w_pix, h_pix):
             ys = [h_pix - i*h_step, h_pix - i*h_step]
             plt.plot(xs, ys)
 
+    plt.show()
+
+
+# Draw rectangulation. We get the relative positions of the rectangles
+# from B, and the real dimension from D. Altough relative positions of
+# rectangles might have changed with the new sizes, the relative
+# positions of rectangles across lines defined by B do not change. We
+# use that to draw the rectangles.
+# B: rectangulation square
+# D: Vector with dimensions (w, h) in each cell
+# w_pix: width in pixels
+# h_pix: height in pixels
+def draw_resized_rectangles(B, D, w_pix, h_pix):
+    Nx = B.shape[0]
+    Ny = B.shape[1]
+    fig, ax = plt.subplots()
+    Rs = {}
+
+    # Horizontal segment by horizontal segment (we could use the
+    # vertical ones as well).
+    for i in range(Ny):
+        for j in range(Nx):
+            # 1. We are right below an horizontal line
+            # 2. We have just moved to a new rectangle
+            # -> we draw the rectangle
+            if (i == 0 or B[i, j] != B[i - 1, j]) and \
+               (j == 0 or B[i, j] != B[i, j - 1]):
+                if j == 0:
+                    r_x = 0
+                else:
+                    # Use left rectangle
+                    r_x = Rs[B[i, j - 1]].max_x()
+                if i == 0:
+                    r_y = 0
+                else:
+                    # Use top rectangle
+                    r_y = Rs[B[i - 1, j]].max_y()
+                r_w = D[0, B[i, j]]
+                r_h = D[1, B[i, j]]
+                Rs[B[i, j]] = RectangleLayout(r_x, r_y, r_w, r_h)
+                rect = patches.Rectangle((r_x, r_y), r_w, r_h,
+                                         facecolor='w', edgecolor='k')
+                ax.add_patch(rect)
+
+    ax.set_xlim(0, w_pix)
+    ax.set_ylim(h_pix, 0)
     plt.show()
 
 
