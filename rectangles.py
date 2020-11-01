@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import itertools
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
@@ -230,7 +231,6 @@ def solve_rectangle_eqs(E, w, h, k):
     dF[2*N] += -w
     dF[2*N + 1] += -h
     # Solve the system
-    print(dF)
     return sp.solve(dF)
 
 
@@ -415,10 +415,89 @@ def draw_resized_rectangles(B, D, w_pix, h_pix):
     plt.show()
 
 
+# Get Nx2 matrix with widths and height from a dictionary returned by
+# sympy's solve functions (variables named w<i> and h<i> are expected).
+def get_matrix_from_solution(N, sol):
+    mat = np.zeros((2, N))
+    for sym, val in sol.items():
+        if sym.name[0] == 'w':
+            mat[0, int(sym.name[1:])] = val
+        if sym.name[0] == 'h':
+            mat[1, int(sym.name[1:])] = val
+    return mat
+
+
+def squared_size_diff(N, sol, mean_sz):
+    diff = 0
+    for i in range(0, N):
+        diff += (sol[0, i]*sol[1, i] - mean_sz)**2
+    return diff
+
+
+# Check if all rectangles in solution are in a given range:
+# (1-p)*k < w_i/h_i < k/(1-p)
+# k: expected proportiong between width and height
+# sol: widths and height in 2xN matrix
+# perc: deviation percentage from k, in [0,1) range
+def check_proportions_in_range(k, sol, perc):
+    c = 1 - perc
+    bottom = k*c
+    top = k/c
+    for i in range(0, sol.shape[1]):
+        k_i = sol[0, i]/sol[1, i]
+        if k_i <= bottom or k_i >= top:
+            return False
+    return True
+
+
+# Compares two rectangulations
+# sol_a,sol_b: widths and heights in 2xN matrix form
+# w,h: dimensions of the background
+# Returns true if A is considered better than B, false otherwise
+def compare_rectangulations_size(sol_a, sol_b, w, h):
+    N = sol_a.shape[1]
+    mean_sz = w*h/N
+    diff_a = squared_size_diff(N, sol_a, mean_sz)
+    diff_b = squared_size_diff(N, sol_b, mean_sz)
+    return diff_a < diff_b
+
+
+# Calculate best rectangulation for N rectangles and background size w x h
+def get_best_rect_for_window(N, k, w, h):
+    # Check all permutations
+    # TODO filter duplicates
+    sol_best = np.zeros(0)
+    B_best = None
+    dev_from_k = 0.15
+    seq_first = [r for r in range(0, N)]
+    for seq in itertools.permutations(seq_first):
+        B = do_diagonal_rectangulation(seq)
+        E = build_rectangulation_equations(B)
+        sol_sympy = solve_rectangle_eqs(E, w, h, k)
+        sol = get_matrix_from_solution(N, sol_sympy)
+        if check_proportions_in_range(k, sol, dev_from_k):
+            if sol_best.size == 0 or \
+               compare_rectangulations_size(sol, sol_best, w, h):
+                sol_best = sol
+                B_best = B
+        draw_resized_rectangles(B, sol, w, h)
+
+    return B_best, sol_best
+
+
 # Data modelling.
 # N: final number of squares
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
 # Final number of equations will be N+1
 
 if __name__ == '__main__':
-    print('TODO')
+    N = 3
+    k = 1.5
+    w = 400
+    h = 200
+    B, sol = get_best_rect_for_window(N, k, w, h)
+    if sol.size:
+        print("Best solution is", sol)
+        draw_resized_rectangles(B, sol, w, h)
+    else:
+        print("No solution found")
