@@ -412,6 +412,7 @@ def draw_resized_rectangles(B, D, w_pix, h_pix):
 
     ax.set_xlim(0, w_pix)
     ax.set_ylim(h_pix, 0)
+    ax.set_aspect('equal')
     plt.show()
 
 
