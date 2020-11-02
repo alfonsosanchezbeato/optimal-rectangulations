@@ -231,7 +231,26 @@ def solve_rectangle_eqs(E, w, h, k):
     dF[2*N] += -w
     dF[2*N + 1] += -h
     # Solve the system
-    return sp.solve(dF)
+    symbols = []
+    symbols.extend(W)
+    symbols.extend(H)
+    symbols.extend(L)
+    # 1. nonlinsolve() if Q != 0
+    # 2. linsolve() if Q == 0
+    # 3. solve() seems to work better than nonlinsolve(), who knows why...
+    #    To use it, convert solution to return a FiniteSet.
+    return sp.nonlinsolve(dF, symbols)
+    # return sp.linsolve(dF, symbols)
+    # sol_dict = sp.solve(dF)
+    # if len(sol_dict) > 1:
+    #     print('Warning: more than one solution')
+    # mat = get_matrix_from_solution(N, sol_dict[0])
+    # sol_ls = []
+    # for i in range(N):
+    #     sol_ls.append(mat[0, i])
+    # for i in range(N):
+    #     sol_ls.append(mat[1, i])
+    # return sp.FiniteSet(tuple(sol_ls))
 
 
 def _len_rect_lines(rect_lines):
@@ -475,8 +494,20 @@ def get_best_rect_for_window(N, k, w, h):
         B = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
         sol_sympy = solve_rectangle_eqs(E, w, h, k)
-        sol = get_matrix_from_solution(N, sol_sympy)
-        if check_proportions_in_range(k, sol, dev_from_k):
+        sol = np.zeros((2, N))
+        # Only one solution
+        print(sol_sympy)
+        full_sol = True
+        for i in range(N):
+            if not isinstance(sol_sympy.args[0][i], sp.Float) or \
+               not isinstance(sol_sympy.args[0][N + i], sp.Float):
+                print('Not fully determined:', sol_sympy)
+                full_sol = False
+                break
+            sol[0, i] = sol_sympy.args[0][i]
+            sol[1, i] = sol_sympy.args[0][N + i]
+        # sol = get_matrix_from_solution(N, sol_sympy)
+        if full_sol and check_proportions_in_range(k, sol, dev_from_k):
             if sol_best.size == 0 or \
                compare_rectangulations_size(sol, sol_best, w, h):
                 sol_best = sol
