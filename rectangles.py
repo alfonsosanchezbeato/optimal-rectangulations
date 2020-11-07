@@ -271,9 +271,9 @@ def solve_rectangle_eqs(E, w, h, k):
     size_avg = w*h/N
     # T controls the relation between the two optimization criteria.
     # It needs to be quite big to be dominant (~100000)
-    T = 1.
+    T = 0.
     # Factor for size
-    Q = 0.
+    Q = 1.
     # Add symbols (widths, heights, lambdas)
     W = sp.symbols('w:{}'.format(N), positive=True)
     H = sp.symbols('h:{}'.format(N), positive=True)
