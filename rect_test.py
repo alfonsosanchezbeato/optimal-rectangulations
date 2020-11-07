@@ -51,7 +51,9 @@ class TestStringMethods(unittest.TestCase):
         def dfunc(X): return r.get_derivative_from_eqs(X, E, w, h, k)
 
         X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimization_f_val(E, X, w, h, k))
+        print(X, r.get_optimization_f_val(X, E, w, h, k))
+        print("Using scipy minimize:")
+        print(r.minimize_rectangulation(E, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)

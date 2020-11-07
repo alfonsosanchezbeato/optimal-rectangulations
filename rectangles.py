@@ -3,6 +3,7 @@ import itertools
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
+import scipy.optimize as opt
 import sympy as sp
 
 
@@ -206,6 +207,56 @@ def get_derivative_from_eqs(X, E, w, h, k):
     indep[1] = h
     diff[n_rect_vars:] = np.matmul(E, X[:n_rect_vars]) - indep
     return diff
+
+
+def opt_f_val(X, w, h, k):
+    N = len(X)//2
+    v = 0
+    avg_sz = w*h/N
+    # Function to optimize
+    for r in range(N):
+        v += (X[r]*X[N + r] - avg_sz)**2
+    # T controls the relation between the two optimization criteria
+    T = 0.
+    for r in range(N):
+        v += T*(X[r] - k*X[N + r])**2
+    return v
+
+
+def opt_jac_val(X, w, h, k):
+    N = len(X)//2
+    diff = np.zeros(2*N)
+    avg_sz = w*h/N
+    # T controls the relation between the two optimization criteria.
+    # It needs to be quite big to be dominant (~100000)
+    # T = 100000.
+    T = 0.
+    # dF/dw_i
+    for i in range(N):
+        diff[i] = 2*T*(X[i] - k*X[N + i])
+        diff[i] += 2*X[N + i]*(X[i]*X[N + i] - avg_sz)
+    # dF/dh_i
+    for i in range(N):
+        diff[N + i] = -2*T*k*(X[i] - k*X[N + i])
+        diff[N + i] += 2*X[i]*(X[i]*X[N + i] - avg_sz)
+
+    return diff
+
+
+# Variables to optimize are [w_1,..,w_N,h_1,..,h_N]
+def minimize_rectangulation(E, w, h, k):
+    n_rect_vars = E.shape[1]
+    N = n_rect_vars//2
+    initial_est = np.ones(n_rect_vars)
+
+    n_cons_eqs = E.shape[0]
+    indep = np.zeros(n_cons_eqs)
+    indep[0] = w
+    indep[1] = h
+    constr = opt.LinearConstraint(E, indep, indep)
+
+    return opt.minimize(opt_f_val, initial_est, args=(w, h, k),
+                        jac=opt_jac_val, constraints=constr)
 
 
 # Finds the minimal of the optimization function by solving the linear
