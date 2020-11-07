@@ -23,7 +23,7 @@ class TestStringMethods(unittest.TestCase):
             mat[1, i] = sol[N + i]
         return mat
 
-    def test_diagonal_rectangulation_3rect(self):
+    def _test_diagonal_rectangulation_3rect(self):
         B = r.do_diagonal_rectangulation([0, 1, 2])
         print(B)
         r.draw_rectangles(B, 400, 200)
@@ -74,6 +74,8 @@ class TestStringMethods(unittest.TestCase):
         print(E)
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(X, E, w, h, k))
+        print("Using scipy minimize:")
+        print(r.minimize_rectangulation(E, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -106,6 +108,8 @@ class TestStringMethods(unittest.TestCase):
         initial_est[5] = 200
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(X, E, w, h, k))
+        print("Using scipy minimize:")
+        print(r.minimize_rectangulation(E, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -130,6 +134,8 @@ class TestStringMethods(unittest.TestCase):
         w = 400
         h = 200
         k = 1.5
+        print("Using scipy minimize:")
+        print(r.minimize_rectangulation(E, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -138,7 +144,7 @@ class TestStringMethods(unittest.TestCase):
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-    def _test_diagonal_rectangulation_15rect(self):
+    def test_diagonal_rectangulation_15rect(self):
         B = r.do_diagonal_rectangulation(
             [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
         Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
@@ -164,10 +170,18 @@ class TestStringMethods(unittest.TestCase):
         r.draw_rectangles(B, w, h)
         E = r.build_rectangulation_equations(B)
 
-        print("Using sympy:")
-        sol = r.solve_rectangle_eqs(E, w, h, k)
-        print(sol)
-        mat_sol = self.get_matrix_from_finiteset(15, sol)
+        print("Using scipy minimize:")
+        T = 0.6*w*h
+        mat_sol = r.minimize_rectangulation(E, w, h, k, T)
+        print(mat_sol)
+        vals = mat_sol[0, :].tolist()
+        vals.extend(mat_sol[1, :].tolist())
+        print(r.opt_f_val(vals, w, h, k, T))
+
+        # print("Using sympy:")
+        # sol = r.solve_rectangle_eqs(E, w, h, k)
+        # print(sol)
+        # mat_sol = self.get_matrix_from_finiteset(15, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
 
         print(E)
