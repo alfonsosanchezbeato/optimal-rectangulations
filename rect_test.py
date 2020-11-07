@@ -11,14 +11,16 @@ class TestStringMethods(unittest.TestCase):
         for ri in R:
             print(ri)
 
-    def get_matrix_from_solution(self, N, sol):
+    def get_matrix_from_finiteset(self, N, sol_set):
         mat = np.zeros((2, N))
-        for sym, val in sol.items():
-            if sym.name[0] == 'w':
-                mat[0, int(sym.name[1:])] = val
-            if sym.name[0] == 'h':
-                mat[1, int(sym.name[1:])] = val
-
+        if len(sol_set) != 1:
+            print('Warning: more than one solution')
+        for sol in sol_set:
+            break
+        for i in range(N):
+            mat[0, i] = sol[i]
+        for i in range(N):
+            mat[1, i] = sol[N + i]
         return mat
 
     def test_diagonal_rectangulation_3rect(self):
@@ -46,14 +48,14 @@ class TestStringMethods(unittest.TestCase):
         for v in range(3, 6):
             initial_est[v] = h/3
 
-        def dfunc(X): return r.get_derivative_from_eqs(E, X, w, h, k)
+        def dfunc(X): return r.get_derivative_from_eqs(X, E, w, h, k)
 
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(E, X, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
-        mat_sol = self.get_matrix_from_solution(3, sol)
+        mat_sol = self.get_matrix_from_finiteset(3, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
@@ -69,11 +71,11 @@ class TestStringMethods(unittest.TestCase):
         E = r.build_rectangulation_equations(B)
         print(E)
         X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimization_f_val(E, X, w, h, k))
+        print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
-        mat_sol = self.get_matrix_from_solution(3, sol)
+        mat_sol = self.get_matrix_from_finiteset(3, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
@@ -101,11 +103,11 @@ class TestStringMethods(unittest.TestCase):
         initial_est[4] = 2*200/3
         initial_est[5] = 200
         X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimization_f_val(E, X, w, h, k))
+        print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
-        mat_sol = self.get_matrix_from_solution(3, sol)
+        mat_sol = self.get_matrix_from_finiteset(3, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
@@ -129,7 +131,7 @@ class TestStringMethods(unittest.TestCase):
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
-        mat_sol = self.get_matrix_from_solution(5, sol)
+        mat_sol = self.get_matrix_from_finiteset(5, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
@@ -163,7 +165,7 @@ class TestStringMethods(unittest.TestCase):
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
-        mat_sol = self.get_matrix_from_solution(15, sol)
+        mat_sol = self.get_matrix_from_finiteset(15, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
 
         print(E)

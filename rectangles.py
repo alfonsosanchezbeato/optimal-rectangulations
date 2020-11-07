@@ -128,13 +128,13 @@ def build_rectangulation_equations(B):
 
 
 # Returns value of optimization function
-# E: restrictions on the rectangulation
 # X: contains [w_1,..,w_N,h_1,..,h_N,l_1,..,l_{N+1}]
 #    (widths, heights, and Lagrange multipliers for the N+1 constraints)
+# E: restrictions on the rectangulation
 # w: background width
 # h: background height
 # k: desired w_i/h_i aspect ratio
-def get_optimization_f_val(E, X, w, h, k):
+def get_optimization_f_val(X, E, w, h, k):
     n_rect_vars = E.shape[1]
     N = n_rect_vars//2
     n_eqs = E.shape[0]
@@ -148,7 +148,7 @@ def get_optimization_f_val(E, X, w, h, k):
     for r in range(1, N):
         v += (X[0]*X[N] - X[r]*X[N + r])**2
     # T controls the relation between the two optimization criteria
-    T = 0.5
+    T = 0.
     for r in range(N):
         v += T*(X[r] - k*X[N + r])**2
     return v
@@ -161,19 +161,19 @@ def get_optimization_f_val(E, X, w, h, k):
 #     for i in range(len(X)):
 #         dX = np.zeros(len(X))
 #         dX[i] = step
-#         dLambda[i] = (get_optimization_f_val(E, X + dX, w, h, k)
-#                       - get_optimization_f_val(E, X - dX, w, h, k))/(2*step)
+#         dLambda[i] = (get_optimization_f_val(X + dX, E, w, h, k)
+#                       - get_optimization_f_val(X - dX, E, w, h, k))/(2*step)
 #     return dLambda
 
 
 # Returns the derivatives for the optimization function.
-# E: restrictions on the rectangulation
 # X: contains [w_1,..,w_N,h_1,..,h_N,l_1,..,l_{N+1}]
 #    (widths, heights, and Lagrange multipliers for the N+1 constraints)
+# E: restrictions on the rectangulation
 # w: background width
 # h: background height
 # k: desired w_i/h_i aspect ratio
-def get_derivative_from_eqs(E, X, w, h, k):
+def get_derivative_from_eqs(X, E, w, h, k):
     diff = np.zeros(len(X))
     n_rect_vars = E.shape[1]
     N = n_rect_vars//2
