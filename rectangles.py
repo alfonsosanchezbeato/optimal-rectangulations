@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import itertools
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
@@ -538,16 +539,21 @@ def compare_rectangulations_size(sol_a, sol_b, w, h):
 
 # Calculate best rectangulation in the sense of best aspect ration for N
 # rectangles and background size w x h
-def get_best_rect_for_window(N, k, w, h):
+def get_best_rect_for_window_old(N, k, w, h):
     # Check all permutations
     # TODO filter duplicates
     sol_best = np.zeros(0)
     B_best = None
     dev_from_k = 0.15
+    dev_from_k = 0.5
     seq_first = [r for r in range(0, N)]
+    # XXX
+    # seq_first = [1, 4, 2, 0, 3]
     for seq in itertools.permutations(seq_first):
         B = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
+        print(seq)
+        print(B)
         sol_sympy = solve_rectangle_eqs(E, w, h, k)
         sol = np.zeros((2, N))
         # Only one solution
@@ -572,13 +578,47 @@ def get_best_rect_for_window(N, k, w, h):
     return B_best, sol_best
 
 
+# Calculate best rectangulation in the sense of equal area distribution and
+# best aspect ration for N rectangles and background size w x h
+def get_best_rect_for_window(N, k, w, h):
+    # Check all permutations
+    # TODO filter duplicates
+    f_best = sys.float_info.max
+    sol_best = np.zeros(0)
+    B_best = None
+    # 0.1: proportion is predominant
+    # 0.05: seems well-balanced
+    c = 0.05
+    T = c*w*h
+    seq_first = [r for r in range(0, N)]
+    for seq in itertools.permutations(seq_first):
+        B = do_diagonal_rectangulation(seq)
+        E = build_rectangulation_equations(B)
+        print(seq)
+        sol = minimize_rectangulation(E, w, h, k, T)
+
+        vals = sol[0, :].tolist()
+        vals.extend(sol[1, :].tolist())
+        f_val = opt_f_val(vals, w, h, k, T)
+        print(f_val)
+        if f_val < f_best:
+            f_best = f_val
+            sol_best = sol
+            B_best = B
+
+        draw_resized_rectangles(B, sol, w, h)
+
+    return B_best, sol_best
+
+
 # Data modelling.
 # N: final number of squares
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
 # Final number of equations will be N+1
 
 if __name__ == '__main__':
-    N = 3
+    # Try 3, 7...
+    N = 7
     k = 1.5
     w = 400
     h = 200

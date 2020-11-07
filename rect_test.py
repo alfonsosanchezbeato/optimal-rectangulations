@@ -171,7 +171,9 @@ class TestStringMethods(unittest.TestCase):
         E = r.build_rectangulation_equations(B)
 
         print("Using scipy minimize:")
-        T = 0.6*w*h
+        # 0.1: proportion is predominant
+        # 0.05: ?
+        T = 0.05*w*h
         mat_sol = r.minimize_rectangulation(E, w, h, k, T)
         print(mat_sol)
         vals = mat_sol[0, :].tolist()
