@@ -127,13 +127,14 @@ def build_rectangulation_equations(B):
     return E
 
 
+# Returns value of optimization function
 # E: restrictions on the rectangulation
 # X: contains [w_1,..,w_N,h_1,..,h_N,l_1,..,l_{N+1}]
 #    (widths, heights, and Lagrange multipliers for the N+1 constraints)
 # w: background width
 # h: background height
 # k: desired w_i/h_i aspect ratio
-def get_optimal_rectangles(E, X, w, h, k):
+def get_optimization_f_val(E, X, w, h, k):
     n_rect_vars = E.shape[1]
     N = n_rect_vars//2
     n_eqs = E.shape[0]
@@ -151,6 +152,18 @@ def get_optimal_rectangles(E, X, w, h, k):
     for r in range(N):
         v += T*(X[r] - k*X[N + r])**2
     return v
+
+# Derivative by differences, not using it now
+# def get_derivative(E, X, w, h, k):
+#     dLambda = np.zeros(len(X))
+#     # Step size
+#     step = 1e-3
+#     for i in range(len(X)):
+#         dX = np.zeros(len(X))
+#         dX[i] = step
+#         dLambda[i] = (get_optimization_f_val(E, X + dX, w, h, k)
+#                       - get_optimization_f_val(E, X - dX, w, h, k))/(2*step)
+#     return dLambda
 
 
 # Returns the derivatives for the optimization function.
@@ -318,21 +331,8 @@ def solve_fit_rectangles(E, B, w, h, k):
             eq[N + l[i + 1]] = -1
             E = np.vstack([E, eq])
 
-    print(E)
     # return np.linalg.solve(E[:, :2*N], E[:, 2*N:])
     return sp.linsolve(sp.Matrix(E))
-
-
-def get_derivative(E, X, w, h, k):
-    dLambda = np.zeros(len(X))
-    # Step size
-    step = 1e-3
-    for i in range(len(X)):
-        dX = np.zeros(len(X))
-        dX[i] = step
-        dLambda[i] = (get_optimal_rectangles(E, X + dX, w, h, k)
-                      - get_optimal_rectangles(E, X - dX, w, h, k))/(2*step)
-    return dLambda
 
 
 # Draw rectangulation
@@ -482,7 +482,8 @@ def compare_rectangulations_size(sol_a, sol_b, w, h):
     return diff_a < diff_b
 
 
-# Calculate best rectangulation for N rectangles and background size w x h
+# Calculate best rectangulation in the sense of best aspect ration for N
+# rectangles and background size w x h
 def get_best_rect_for_window(N, k, w, h):
     # Check all permutations
     # TODO filter duplicates

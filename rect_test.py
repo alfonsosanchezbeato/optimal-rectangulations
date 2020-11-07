@@ -49,7 +49,7 @@ class TestStringMethods(unittest.TestCase):
         def dfunc(X): return r.get_derivative_from_eqs(E, X, w, h, k)
 
         X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimal_rectangles(E, X, w, h, k))
+        print(X, r.get_optimization_f_val(E, X, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -69,7 +69,7 @@ class TestStringMethods(unittest.TestCase):
         E = r.build_rectangulation_equations(B)
         print(E)
         X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimal_rectangles(E, X, w, h, k))
+        print(X, r.get_optimization_f_val(E, X, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -101,7 +101,7 @@ class TestStringMethods(unittest.TestCase):
         initial_est[4] = 2*200/3
         initial_est[5] = 200
         X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimal_rectangles(E, X, w, h, k))
+        print(X, r.get_optimization_f_val(E, X, w, h, k))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -110,7 +110,7 @@ class TestStringMethods(unittest.TestCase):
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-    def test_diagonal_rectangulation_5rect(self):
+    def _test_diagonal_rectangulation_5rect(self):
         B = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
         print(B)
         r.draw_rectangles(B, 400, 200)
@@ -134,7 +134,7 @@ class TestStringMethods(unittest.TestCase):
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-    def test_diagonal_rectangulation_15rect(self):
+    def _test_diagonal_rectangulation_15rect(self):
         B = r.do_diagonal_rectangulation(
             [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
         Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
@@ -167,6 +167,30 @@ class TestStringMethods(unittest.TestCase):
         r.draw_resized_rectangles(B, mat_sol, w, h)
 
         print(E)
+
+    def _test_best_3rect(self):
+        N = 3
+        k = 1.5
+        w = 400
+        h = 200
+        B, sol = r.get_best_rect_for_window(N, k, w, h)
+        if sol.size:
+            print("Best solution is", sol)
+            r.draw_resized_rectangles(B, sol, w, h)
+        else:
+            print("No solution found")
+
+    def _test_best_5rect(self):
+        N = 5
+        k = 1.5
+        w = 400
+        h = 200
+        B, sol = r.get_best_rect_for_window(N, k, w, h)
+        if sol.size:
+            print("Best solution is", sol)
+            r.draw_resized_rectangles(B, sol, w, h)
+        else:
+            print("No solution found")
 
 
 if __name__ == '__main__':
