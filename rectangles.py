@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import itertools
+import math
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -586,6 +587,7 @@ def get_best_rect_for_window(N, k, w, h):
     f_best = sys.float_info.max
     sol_best = np.zeros(0)
     B_best = None
+    seq_best = None
     # 0.1: proportion is predominant
     # 0.05: seems well-balanced
     c = 0.05
@@ -594,21 +596,22 @@ def get_best_rect_for_window(N, k, w, h):
     for seq in itertools.permutations(seq_first):
         B = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
-        print(seq)
+        # print(seq)
         sol = minimize_rectangulation(E, w, h, k, T)
 
         vals = sol[0, :].tolist()
         vals.extend(sol[1, :].tolist())
         f_val = opt_f_val(vals, w, h, k, T)
-        print(f_val)
+        # print(f_val)
         if f_val < f_best:
             f_best = f_val
             sol_best = sol
             B_best = B
+            seq_best = seq
 
-        draw_resized_rectangles(B, sol, w, h)
+        # draw_resized_rectangles(B, sol, w, h)
 
-    return B_best, sol_best
+    return B_best, sol_best, seq_best
 
 
 # Data modelling.
@@ -616,7 +619,7 @@ def get_best_rect_for_window(N, k, w, h):
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
 # Final number of equations will be N+1
 
-if __name__ == '__main__':
+def get_best_for_N():
     # Try 3, 7...
     N = 7
     k = 1.5
@@ -628,3 +631,23 @@ if __name__ == '__main__':
         draw_resized_rectangles(B, sol, w, h)
     else:
         print("No solution found")
+
+
+def plot_for_N5():
+    num_pt = 15
+    # For instance 400 x 200
+    num_pix = 80000
+    aspect_lb = 0.5
+    aspect_ub = 4.5
+    N = 5
+    k = 1.5
+    for aspect in np.linspace(aspect_lb, aspect_ub, num_pt):
+        w = math.sqrt(aspect*num_pix)
+        h = w/aspect
+        B, sol, seq = get_best_rect_for_window(N, k, w, h)
+        print(seq)
+        draw_resized_rectangles(B, sol, w, h)
+
+
+if __name__ == '__main__':
+    plot_for_N5()
