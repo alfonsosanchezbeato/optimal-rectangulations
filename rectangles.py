@@ -594,6 +594,9 @@ def get_best_rect_for_window(N, k, w, h):
     T = c*w*h
     seq_first = [r for r in range(0, N)]
     for seq in itertools.permutations(seq_first):
+        if not is_baxter_permutation(seq):
+            continue
+
         B = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
         # print(seq)
