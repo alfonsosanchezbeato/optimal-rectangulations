@@ -592,6 +592,11 @@ def get_best_rect_for_window(N, k, w, h):
     # 0.05: seems well-balanced
     c = 0.05
     T = c*w*h
+    # If the new optimum is only very slightly better, keep the old value
+    # so solutions are more deterministic (itertools.permutations() always
+    # produces sequences in the same order). This delta is the allowed
+    # difference.
+    delta = (w*h)**2/1e12
     seq_first = [r for r in range(0, N)]
     for seq in itertools.permutations(seq_first):
         if not is_baxter_permutation(seq):
@@ -605,8 +610,7 @@ def get_best_rect_for_window(N, k, w, h):
         vals = sol[0, :].tolist()
         vals.extend(sol[1, :].tolist())
         f_val = opt_f_val(vals, w, h, k, T)
-        # print(f_val)
-        if f_val < f_best:
+        if f_val + delta < f_best:
             f_best = f_val
             sol_best = sol
             B_best = B
@@ -720,8 +724,9 @@ def plot_for_N5():
 if __name__ == '__main__':
     for ss in get_subsequence(3, [1, 2, 3, 4]):
         print(ss)
-    print(is_baxter_permutation([1,2,3,4]))
-    print(is_baxter_permutation([3,1,4,2]))
-    print(is_baxter_permutation([2,4,1,3]))
+    print(is_baxter_permutation([1, 2, 3, 4]))
+    print(is_baxter_permutation([3, 1, 4, 2]))
+    print(is_baxter_permutation([2, 4, 1, 3]))
     for N in range(1, 8):
         print(count_number_diagonal_rects(N))
+    plot_for_N5()
