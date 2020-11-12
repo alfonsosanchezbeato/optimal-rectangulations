@@ -614,6 +614,71 @@ def get_best_rect_for_window(N, k, w, h):
     return B_best, sol_best, seq_best
 
 
+# Returns True if subseq matches the pattern
+# pattern: contains numbers
+# gaps: booleans list, gaps[i]=true if dash before pattern[i]
+def subseq_matches_pattern(seq, subseq, pattern, gaps):
+    # i is seq index, j is subseq/pattern index
+    j = 0
+    gap = False
+    len_subseq = len(subseq)
+    for i, sv in enumerate(seq):
+        if sv != subseq[j]:
+            gap = True
+            continue
+
+        # No match if gap found and no dash
+        if j > 0 and gaps[j] is False and gap is True:
+            return False
+
+        # Check previous values in subseq
+        for k in range(0, j - 1):
+            if pattern[k] < pattern[j] and subseq[k] >= subseq[j]:
+                return False
+            if subseq[k] < subseq[j] and pattern[k] >= pattern[j]:
+                return False
+
+        gap = False
+        j += 1
+        if j == len_subseq:
+            break
+
+    return True
+
+
+def get_subsequence(n, seq):
+    if n == 0:
+        yield []
+    for i, s in enumerate(seq):
+        for l in get_subsequence(n - 1, seq[i + 1:]):
+            subseq = [s]
+            subseq.extend(l)
+            yield subseq
+
+
+def is_baxter_permutation(seq):
+    is_baxter = True
+    for subseq in get_subsequence(4, seq):
+        if subseq_matches_pattern(seq, subseq, [3, 1, 4, 2],
+                                  [False, True, False, True]) or \
+           subseq_matches_pattern(seq, subseq, [2, 4, 1, 3],
+                                  [False, True, False, True]):
+            is_baxter = False
+            break
+
+    return is_baxter
+
+
+def count_number_diagonal_rects(N):
+    num_rects = 0
+    seq_first = [r for r in range(0, N)]
+    for seq in itertools.permutations(seq_first):
+        if is_baxter_permutation(seq):
+            num_rects += 1
+
+    return num_rects
+
+
 # Data modelling.
 # N: final number of squares
 # Equations contain 2*N variables: w1,..,wN,h1,..,hN
@@ -650,4 +715,10 @@ def plot_for_N5():
 
 
 if __name__ == '__main__':
-    plot_for_N5()
+    for ss in get_subsequence(3, [1, 2, 3, 4]):
+        print(ss)
+    print(is_baxter_permutation([1,2,3,4]))
+    print(is_baxter_permutation([3,1,4,2]))
+    print(is_baxter_permutation([2,4,1,3]))
+    for N in range(1, 8):
+        print(count_number_diagonal_rects(N))
