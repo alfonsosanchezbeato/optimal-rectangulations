@@ -23,7 +23,7 @@ class TestStringMethods(unittest.TestCase):
             mat[1, i] = sol[N + i]
         return mat
 
-    def test_diagonal_rectangulation_3rect(self):
+    def _test_diagonal_rectangulation_3rect(self):
         B = r.do_diagonal_rectangulation([0, 1, 2])
         print(B)
         r.draw_rectangles(B, 400, 200)
@@ -215,6 +215,18 @@ class TestStringMethods(unittest.TestCase):
             r.draw_resized_rectangles(B, sol, w, h)
         else:
             print("No solution found")
+
+    def test_subseq_match_pattern(self):
+        seq = [3, 7, 5, 4, 2, 1, 6]
+        pattern = [3, 1, 4, 2]
+        gaps = [False, True, False, True]
+        print(r.does_subseq_match_pattern(seq, [3, 5, 4, 1], pattern, gaps))
+        gaps = [True, True, True, True]
+        print(r.does_subseq_match_pattern([4,5,3,1,2], [4,5,1,2], [3,4,1,2], gaps))
+        gaps = [True, False, True, False]
+        print(r.does_subseq_match_pattern([4,5,3,1,2], [4,5,1,2], [3,4,1,2], gaps))
+        gaps = [True, True, False, True]
+        print(r.does_subseq_match_pattern([4,5,3,1,2], [4,5,1,2], [3,4,1,2], gaps))
 
 
 if __name__ == '__main__':
