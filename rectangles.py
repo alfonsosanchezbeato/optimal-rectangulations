@@ -41,12 +41,17 @@ def is_b_empty(B, N, i, j):
 
 # Do a diagonal rectangulation
 # seq: sequence with order in which to create the rectangles.
-#      Lenght N, with values between 0 and N-1.
+#      Length N, with values between 0 and N-1.
+# Returns a numpy matrix where each cell contains an integer for the
+# rectangle in that position and a 2xN matrix with the dimensions of
+# each rectangle as a percentage of the bounding segments.
 def do_diagonal_rectangulation(seq):
     N = len(seq)
-    # Background rectangle, as a grid where we will indicate the ovelaying
+    # Background rectangle, as a grid where we will indicate the overlaying
     # rectangle in each cell (each of them can span acrosss multiple cells).
     B = np.full((N, N), -1, dtype=int)
+    dim = np.zeros((2, N))
+
     for r in seq:
         # Top-left corner (top, left)
         top = r
@@ -71,13 +76,15 @@ def do_diagonal_rectangulation(seq):
             while right + 1 <= N - 1 and \
                   not is_b_empty(B, N, bottom + 1, right + 1):
                 right += 1
+
+        dim[0, r] = (right - left + 1)/N
+        dim[1, r] = (bottom - top + 1)/N
         # Fill inside B
-        # print('Rect: ({},{}), ({},{})'.format(top, left, bottom, right))
         for i in range(top, bottom + 1):
             for j in range(left, right + 1):
                 B[i, j] = r
 
-    return B
+    return B, dim
 
 
 # Creates equations for the rectangulation restrictions
@@ -498,7 +505,7 @@ def get_best_rect_for_window_old(N, k, w, h):
     # XXX
     # seq_first = [1, 4, 2, 0, 3]
     for seq in itertools.permutations(seq_first):
-        B = do_diagonal_rectangulation(seq)
+        B, dim = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
         print(seq)
         print(B)
@@ -549,7 +556,7 @@ def get_best_rect_for_window(N, k, w, h):
         if not is_baxter_permutation(seq):
             continue
 
-        B = do_diagonal_rectangulation(seq)
+        B, dim = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
         # print(seq)
         sol = minimize_rectangulation(E, w, h, k, T)
@@ -644,7 +651,7 @@ def get_best_for_N():
     k = 1.5
     w = 400
     h = 200
-    B, sol = get_best_rect_for_window(N, k, w, h)
+    B, sol, seq = get_best_rect_for_window(N, k, w, h)
     if sol.size:
         print("Best solution is", sol)
         draw_resized_rectangles(B, sol, w, h)
