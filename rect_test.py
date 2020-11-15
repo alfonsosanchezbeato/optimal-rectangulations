@@ -23,10 +23,12 @@ class TestStringMethods(unittest.TestCase):
             mat[1, i] = sol[N + i]
         return mat
 
-    def _test_diagonal_rectangulation_3rect(self):
-        B = r.do_diagonal_rectangulation([0, 1, 2])
+    def test_diagonal_rectangulation_3rect(self):
+        B, dim = r.do_diagonal_rectangulation([0, 1, 2])
         print(B)
-        r.draw_rectangles(B, 400, 200)
+        dim[0, :] *= 400
+        dim[1, :] *= 200
+        r.draw_resized_rectangles(B, dim, 400, 200)
         Bc = np.array([[0, 1, 2],
                        [0, 1, 2],
                        [0, 1, 2]],
@@ -64,9 +66,11 @@ class TestStringMethods(unittest.TestCase):
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-        B = r.do_diagonal_rectangulation([2, 1, 0])
+        B, dim = r.do_diagonal_rectangulation([2, 1, 0])
         print(B)
-        r.draw_rectangles(B, 400, 200)
+        dim[0, :] *= 400
+        dim[1, :] *= 200
+        r.draw_resized_rectangles(B, dim, 400, 200)
         Bc = np.array([[0, 0, 0],
                        [1, 1, 1],
                        [2, 2, 2]],
@@ -85,9 +89,11 @@ class TestStringMethods(unittest.TestCase):
         r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
-        B = r.do_diagonal_rectangulation([1, 0, 2])
+        B, dim = r.do_diagonal_rectangulation([1, 0, 2])
         print(B)
-        r.draw_rectangles(B, 400, 200)
+        dim[0, :] *= w
+        dim[1, :] *= h
+        r.draw_resized_rectangles(B, mat_sol, w, h)
         Bc = np.array([[0, 0, 2],
                        [1, 1, 2],
                        [1, 1, 2]],
@@ -112,18 +118,27 @@ class TestStringMethods(unittest.TestCase):
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, w, h, k, T))
-        print("Using sympy:")
-        sol = r.solve_rectangle_eqs(E, w, h, k)
-        print(sol)
-        mat_sol = self.get_matrix_from_finiteset(3, sol)
-        r.draw_resized_rectangles(B, mat_sol, w, h)
+        # print("Using sympy:")
+        # sol = r.solve_rectangle_eqs(E, w, h, k)
+        # print(sol)
+        # mat_sol = self.get_matrix_from_finiteset(3, sol)
+        # r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-    def _test_diagonal_rectangulation_5rect(self):
-        B = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
+    def test_diagonal_rectangulation_5rect(self):
+        w = 400
+        h = 200
+        k = 1.5
+        c = 0.05
+        T = c*w*h
+
+        B, dim = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
         print(B)
-        r.draw_rectangles(B, 400, 200)
+        dim[0, :] *= 500
+        dim[1, :] *= 500
+        print(dim)
+        r.draw_resized_rectangles(B, dim, 500, 500)
         Bc = np.array([[0, 1, 1, 3, 3],
                        [0, 1, 1, 3, 3],
                        [2, 2, 2, 3, 3],
@@ -133,23 +148,18 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue((B == Bc).all())
         E = r.build_rectangulation_equations(B)
         print(E)
-        w = 400
-        h = 200
-        k = 1.5
-        c = 0.05
-        T = c*w*h
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, w, h, k, T))
-        print("Using sympy:")
-        sol = r.solve_rectangle_eqs(E, w, h, k)
-        print(sol)
-        mat_sol = self.get_matrix_from_finiteset(5, sol)
-        r.draw_resized_rectangles(B, mat_sol, w, h)
+        # print("Using sympy:")
+        # sol = r.solve_rectangle_eqs(E, w, h, k)
+        # print(sol)
+        # mat_sol = self.get_matrix_from_finiteset(5, sol)
+        # r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
-    def _test_diagonal_rectangulation_15rect(self):
-        B = r.do_diagonal_rectangulation(
+    def test_diagonal_rectangulation_15rect(self):
+        B, dim = r.do_diagonal_rectangulation(
             [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
         Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
                        [1, 1, 2, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
@@ -171,7 +181,10 @@ class TestStringMethods(unittest.TestCase):
         w = 400
         h = 200
         k = 1.5
-        r.draw_rectangles(B, w, h)
+        dim[0, :] *= w
+        dim[1, :] *= h
+        r.draw_resized_rectangles(B, dim, w, h)
+
         E = r.build_rectangulation_equations(B)
 
         print("Using scipy minimize:")
@@ -192,24 +205,24 @@ class TestStringMethods(unittest.TestCase):
 
         print(E)
 
-    def _test_best_3rect(self):
+    def test_best_3rect(self):
         N = 3
         k = 1.5
         w = 400
         h = 200
-        B, sol = r.get_best_rect_for_window(N, k, w, h)
+        B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
         if sol.size:
             print("Best solution is", sol)
             r.draw_resized_rectangles(B, sol, w, h)
         else:
             print("No solution found")
 
-    def _test_best_5rect(self):
+    def test_best_5rect(self):
         N = 5
         k = 1.5
         w = 400
         h = 200
-        B, sol = r.get_best_rect_for_window(N, k, w, h)
+        B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
         if sol.size:
             print("Best solution is", sol)
             r.draw_resized_rectangles(B, sol, w, h)
@@ -220,13 +233,16 @@ class TestStringMethods(unittest.TestCase):
         seq = [3, 7, 5, 4, 2, 1, 6]
         pattern = [3, 1, 4, 2]
         gaps = [False, True, False, True]
-        print(r.does_subseq_match_pattern(seq, [3, 5, 4, 1], pattern, gaps))
+        print(r.subseq_matches_pattern(seq, [3, 5, 4, 1], pattern, gaps))
         gaps = [True, True, True, True]
-        print(r.does_subseq_match_pattern([4,5,3,1,2], [4,5,1,2], [3,4,1,2], gaps))
+        print(r.subseq_matches_pattern([4, 5, 3, 1, 2], [4, 5, 1, 2],
+                                       [3, 4, 1, 2], gaps))
         gaps = [True, False, True, False]
-        print(r.does_subseq_match_pattern([4,5,3,1,2], [4,5,1,2], [3,4,1,2], gaps))
+        print(r.subseq_matches_pattern([4, 5, 3, 1, 2], [4, 5, 1, 2],
+                                       [3, 4, 1, 2], gaps))
         gaps = [True, True, False, True]
-        print(r.does_subseq_match_pattern([4,5,3,1,2], [4,5,1,2], [3,4,1,2], gaps))
+        print(r.subseq_matches_pattern([4, 5, 3, 1, 2], [4, 5, 1, 2],
+                                       [3, 4, 1, 2], gaps))
 
 
 if __name__ == '__main__':
