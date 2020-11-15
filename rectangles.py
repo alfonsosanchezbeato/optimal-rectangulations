@@ -444,6 +444,33 @@ def draw_rectangles(B, w_pix, h_pix):
     plt.show()
 
 
+def dimensions_from_rect_matrix(B, w, h):
+    N = B.shape[0]
+    dim = np.zeros((2, N))
+    cell_w = w/N
+    cell_h = h/N
+
+    for i in range(0, B.shape[0]):
+        cur_len = 0
+        for j in range(0, B.shape[1]):
+            if j > 0 and B[i, j - 1] != B[i, j]:
+                dim[0, B[i, j - 1]] = cur_len
+                cur_len = 0
+            cur_len += cell_w
+        dim[0, B[i, j]] = cur_len
+
+    for j in range(0, B.shape[1]):
+        cur_len = 0
+        for i in range(0, B.shape[0]):
+            if i > 0 and B[i - 1, j] != B[i, j]:
+                dim[1, B[i - 1, j]] = cur_len
+                cur_len = 0
+            cur_len += cell_h
+        dim[1, B[i, j]] = cur_len
+
+    return dim
+
+
 # Draw rectangulation. We get the relative positions of the rectangles
 # from B, and the real dimension from D. Altough relative positions of
 # rectangles might have changed with the new sizes, the relative
