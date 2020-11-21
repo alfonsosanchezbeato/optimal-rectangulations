@@ -56,8 +56,7 @@ class TestStringMethods(unittest.TestCase):
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
         c = 0.05
-        T = c*w*h
-        print(r.minimize_rectangulation(E, w, h, k, T))
+        print(r.minimize_rectangulation(E, w, h, k, c))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -81,7 +80,7 @@ class TestStringMethods(unittest.TestCase):
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, w, h, k, T))
+        print(r.minimize_rectangulation(E, w, h, k, c))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -117,7 +116,7 @@ class TestStringMethods(unittest.TestCase):
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, w, h, k, T))
+        print(r.minimize_rectangulation(E, w, h, k, c))
         # print("Using sympy:")
         # sol = r.solve_rectangle_eqs(E, w, h, k)
         # print(sol)
@@ -131,7 +130,6 @@ class TestStringMethods(unittest.TestCase):
         h = 200
         k = 1.5
         c = 0.05
-        T = c*w*h
 
         B, dim = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
         print(B)
@@ -149,7 +147,7 @@ class TestStringMethods(unittest.TestCase):
         E = r.build_rectangulation_equations(B)
         print(E)
         print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, w, h, k, T))
+        print(r.minimize_rectangulation(E, w, h, k, c))
         # print("Using sympy:")
         # sol = r.solve_rectangle_eqs(E, w, h, k)
         # print(sol)
@@ -190,12 +188,12 @@ class TestStringMethods(unittest.TestCase):
         print("Using scipy minimize:")
         # 0.1: proportion is predominant
         # 0.05: ?
-        T = 0.05*w*h
-        mat_sol = r.minimize_rectangulation(E, w, h, k, T)
+        c = 0.05
+        mat_sol = r.minimize_rectangulation(E, w, h, k, c)
         print(mat_sol)
         vals = mat_sol[0, :].tolist()
         vals.extend(mat_sol[1, :].tolist())
-        print(r.opt_f_val(vals, w, h, k, T))
+        print(r.opt_f_val(vals, w, h, k, c))
 
         # print("Using sympy:")
         # sol = r.solve_rectangle_eqs(E, w, h, k)

@@ -9,6 +9,8 @@ import scipy.optimize as opt
 import sympy as sp
 
 
+# Helper class with rectangle information, used for the moment only when
+# drawing rectangulations.
 class RectangleLayout:
     def __init__(self, x, y, width, height):
         self.x = x
@@ -87,14 +89,13 @@ def do_diagonal_rectangulation(seq):
     return B, dim
 
 
-# Creates equations for the rectangulation restrictions
+# Creates equations for the rectangulation restrictions, without the
+# independent terms.
 # B: rectangulation as created by do_diagonal_rectangulation
-# w: full width
-# h: full height
 def build_rectangulation_equations(B):
     N = B.shape[0]
-    # Top and left of rectangulation
     E = np.zeros((2, 2*N))
+    # Top and left of rectangulation
     for j in range(N):
         E[0, B[0, j]] = 1
     for i in range(N):
@@ -157,8 +158,9 @@ def get_optimization_f_val(X, E, w, h, k):
     # Function to optimize
     for r in range(1, N):
         v += (X[0]*X[N] - X[r]*X[N + r])**2
-    # T controls the relation between the two optimization criteria
-    T = 0.
+    # c controls the relation between the two optimization criteria
+    c = 0.
+    T = c*h*h
     for r in range(N):
         v += T*(X[r] - k*X[N + r])**2
     return v
@@ -188,10 +190,9 @@ def get_derivative_from_eqs(X, E, w, h, k):
     diff = np.zeros(len(X))
     n_rect_vars = E.shape[1]
     N = n_rect_vars//2
-    # T controls the relation between the two optimization criteria.
-    # It needs to be quite big to be dominant (~100000)
-    # T = 100000.
-    T = 0.
+    # c controls the relation between the two optimization criteria.
+    c = 0.
+    T = c*h*h
     # dF/dw_i
     for i in range(N):
         diff[i] = 2*T*(X[i] - k*X[N + i])
@@ -219,10 +220,11 @@ def get_derivative_from_eqs(X, E, w, h, k):
     return diff
 
 
-def opt_f_val(X, w, h, k, T):
+def opt_f_val(X, w, h, k, c):
     N = len(X)//2
     v = 0
     avg_sz = w*h/N
+    T = c*h*h
     # Function to optimize
     for r in range(N):
         v += (X[r]*X[N + r] - avg_sz)**2
@@ -231,10 +233,11 @@ def opt_f_val(X, w, h, k, T):
     return v
 
 
-def opt_jac_val(X, w, h, k, T):
+def opt_jac_val(X, w, h, k, c):
     N = len(X)//2
     diff = np.zeros(2*N)
     avg_sz = w*h/N
+    T = c*h*h
     # dF/dw_i
     for i in range(N):
         diff[i] = 2*T*(X[i] - k*X[N + i])
@@ -248,9 +251,9 @@ def opt_jac_val(X, w, h, k, T):
 
 
 # Variables to optimize are [w_1,..,w_N,h_1,..,h_N]
-# T controls the relation between the two optimization criteria.
+# c controls the relation between the two optimization criteria.
 # It needs to be around h*w
-def minimize_rectangulation(E, w, h, k, T):
+def minimize_rectangulation(E, w, h, k, c):
     n_rect_vars = E.shape[1]
     N = n_rect_vars//2
     initial_est = np.ones(n_rect_vars)
@@ -261,7 +264,7 @@ def minimize_rectangulation(E, w, h, k, T):
     indep[1] = h
     constr = opt.LinearConstraint(E, indep, indep)
 
-    sol = opt.minimize(opt_f_val, initial_est, args=(w, h, k, T),
+    sol = opt.minimize(opt_f_val, initial_est, args=(w, h, k, c),
                        jac=opt_jac_val, constraints=constr)
     if not sol.success:
         print('Could not optimize:', sol.message)
@@ -278,9 +281,9 @@ def solve_rectangle_eqs(E, w, h, k):
     N = n_rect_vars//2
     dF = [0]*(3*N + 1)
     size_avg = w*h/N
-    # T controls the relation between the two optimization criteria.
-    # It needs to be quite big to be dominant (~100000)
-    T = 0.
+    # c controls the relation between the two optimization criteria.
+    c = 0.
+    T = c*h*h
     # Factor for size
     Q = 1.
     # Add symbols (widths, heights, lambdas)
@@ -401,7 +404,7 @@ def solve_fit_rectangles(E, B, w, h, k):
 # Draw rectangulation. We get the relative positions of the rectangles
 # from B, and the real dimension from D. Altough relative positions of
 # rectangles might have changed with the new sizes, the relative
-# positions of rectangles across lines defined by B do not change. We
+# positions of rectangles across segments defined by B do not change. We
 # use that to draw the rectangles.
 # B: rectangulation square
 # D: Vector with dimensions (w, h) in each cell
@@ -545,7 +548,6 @@ def get_best_rect_for_window(N, k, w, h):
     # 0.1: proportion is predominant
     # 0.05: seems well-balanced
     c = 0.05
-    T = c*w*h
     # If the new optimum is only very slightly better, keep the old value
     # so solutions are more deterministic (itertools.permutations() always
     # produces sequences in the same order). This delta is the allowed
@@ -559,11 +561,11 @@ def get_best_rect_for_window(N, k, w, h):
         B, dim = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
         # print(seq)
-        sol = minimize_rectangulation(E, w, h, k, T)
+        sol = minimize_rectangulation(E, w, h, k, c)
 
         vals = sol[0, :].tolist()
         vals.extend(sol[1, :].tolist())
-        f_val = opt_f_val(vals, w, h, k, T)
+        f_val = opt_f_val(vals, w, h, k, c)
         if f_val + delta < f_best:
             f_best = f_val
             sol_best = sol
