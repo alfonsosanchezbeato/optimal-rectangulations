@@ -24,11 +24,14 @@ class TestStringMethods(unittest.TestCase):
         return mat
 
     def test_diagonal_rectangulation_3rect(self):
+        w = 320
+        h = 180
+        k = 1.5
         B, dim = r.do_diagonal_rectangulation([0, 1, 2])
         print(B)
-        dim[0, :] *= 400
-        dim[1, :] *= 200
-        r.draw_resized_rectangles(B, dim, 400, 200)
+        dim[0, :] *= w
+        dim[1, :] *= h
+        r.draw_resized_rectangles(B, dim, w, h)
         Bc = np.array([[0, 1, 2],
                        [0, 1, 2],
                        [0, 1, 2]],
@@ -41,9 +44,6 @@ class TestStringMethods(unittest.TestCase):
                        [0.,  0.,  0.,  1., -1.,  0.],
                        [0.,  0.,  0.,  0.,  1., -1.]])
         self.assertTrue((E == Ec).all())
-        w = 400
-        h = 200
-        k = 1.5
         initial_est = np.ones(3*2 + 4)
         for v in range(3):
             initial_est[v] = w/3
@@ -56,9 +56,9 @@ class TestStringMethods(unittest.TestCase):
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
         c = 0.05
-        print(r.minimize_rectangulation(E, w, h, k, c))
+        print(r.minimize_rectangulation(E, dim, w, h, k, c))
         print("Using sympy:")
-        sol = r.solve_rectangle_eqs(E, w, h, k)
+        sol = r.solve_rectangle_eqs(E, 400, 200, k)
         print(sol)
         mat_sol = self.get_matrix_from_finiteset(3, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
@@ -67,9 +67,9 @@ class TestStringMethods(unittest.TestCase):
 
         B, dim = r.do_diagonal_rectangulation([2, 1, 0])
         print(B)
-        dim[0, :] *= 400
-        dim[1, :] *= 200
-        r.draw_resized_rectangles(B, dim, 400, 200)
+        dim[0, :] *= w
+        dim[1, :] *= h
+        r.draw_resized_rectangles(B, dim, w, h)
         Bc = np.array([[0, 0, 0],
                        [1, 1, 1],
                        [2, 2, 2]],
@@ -80,7 +80,7 @@ class TestStringMethods(unittest.TestCase):
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, w, h, k, c))
+        print(r.minimize_rectangulation(E, dim, w, h, k, c))
         print("Using sympy:")
         sol = r.solve_rectangle_eqs(E, w, h, k)
         print(sol)
@@ -107,16 +107,16 @@ class TestStringMethods(unittest.TestCase):
         initial_est[3] = 100
         initial_est[4] = 120
         initial_est[5] = 66
-        initial_est[0] = 2*400/3
-        initial_est[1] = 2*400/3
-        initial_est[2] = 400/3
-        initial_est[3] = 200/3
-        initial_est[4] = 2*200/3
-        initial_est[5] = 200
+        initial_est[0] = 2*320/3
+        initial_est[1] = 2*320/3
+        initial_est[2] = 320/3
+        initial_est[3] = 180/3
+        initial_est[4] = 2*180/3
+        initial_est[5] = 180
         X = fsolve(dfunc, initial_est)
         print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, w, h, k, c))
+        print(r.minimize_rectangulation(E, dim, w, h, k, c))
         # print("Using sympy:")
         # sol = r.solve_rectangle_eqs(E, w, h, k)
         # print(sol)
@@ -126,17 +126,17 @@ class TestStringMethods(unittest.TestCase):
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
     def test_diagonal_rectangulation_5rect(self):
-        w = 400
-        h = 200
+        w = 320
+        h = 180
         k = 1.5
         c = 0.05
 
         B, dim = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
         print(B)
-        dim[0, :] *= 500
-        dim[1, :] *= 500
+        dim[0, :] *= w
+        dim[1, :] *= h
         print(dim)
-        r.draw_resized_rectangles(B, dim, 500, 500)
+        r.draw_resized_rectangles(B, dim, w, h)
         Bc = np.array([[0, 1, 1, 3, 3],
                        [0, 1, 1, 3, 3],
                        [2, 2, 2, 3, 3],
@@ -147,7 +147,7 @@ class TestStringMethods(unittest.TestCase):
         E = r.build_rectangulation_equations(B)
         print(E)
         print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, w, h, k, c))
+        print(r.minimize_rectangulation(E, dim, w, h, k, c))
         # print("Using sympy:")
         # sol = r.solve_rectangle_eqs(E, w, h, k)
         # print(sol)
@@ -176,8 +176,8 @@ class TestStringMethods(unittest.TestCase):
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
-        w = 400
-        h = 200
+        w = 320
+        h = 180
         k = 1.5
         dim[0, :] *= w
         dim[1, :] *= h
@@ -189,7 +189,7 @@ class TestStringMethods(unittest.TestCase):
         # 0.1: proportion is predominant
         # 0.05: ?
         c = 0.05
-        mat_sol = r.minimize_rectangulation(E, w, h, k, c)
+        mat_sol = r.minimize_rectangulation(E, dim, w, h, k, c)
         print(mat_sol)
         vals = mat_sol[0, :].tolist()
         vals.extend(mat_sol[1, :].tolist())
@@ -206,8 +206,8 @@ class TestStringMethods(unittest.TestCase):
     def test_best_3rect(self):
         N = 3
         k = 1.5
-        w = 400
-        h = 200
+        w = 320
+        h = 180
         B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
         if sol.size:
             print("Best solution is", sol)
@@ -218,8 +218,8 @@ class TestStringMethods(unittest.TestCase):
     def test_best_5rect(self):
         N = 5
         k = 1.5
-        w = 400
-        h = 200
+        w = 320
+        h = 180
         B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
         if sol.size:
             print("Best solution is", sol)

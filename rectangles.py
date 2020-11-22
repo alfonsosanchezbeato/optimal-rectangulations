@@ -251,12 +251,16 @@ def opt_jac_val(X, w, h, k, c):
 
 
 # Variables to optimize are [w_1,..,w_N,h_1,..,h_N]
-# c controls the relation between the two optimization criteria.
-# It needs to be around h*w
-def minimize_rectangulation(E, w, h, k, c):
+# E: rectangulation equations coefficients (N+1)x2N matrix
+# est: initial estimation for the sizes in a 2xN matrix
+# w: width of bounding rectangle
+# h: height of bounding rectangle
+# k: desired w_i/h_i ratio
+# c: controls the balance between the two optimization criteria.
+def minimize_rectangulation(E, est, w, h, k, c):
     n_rect_vars = E.shape[1]
     N = n_rect_vars//2
-    initial_est = np.ones(n_rect_vars)
+    initial_est = est.reshape(est.size)
 
     n_cons_eqs = E.shape[0]
     indep = np.zeros(n_cons_eqs)
@@ -537,7 +541,7 @@ def get_best_rect_for_window_old(N, k, w, h):
 
 
 # Calculate best rectangulation in the sense of equal area distribution and
-# best aspect ration for N rectangles and background size w x h
+# best aspect ration for N rectangles and background size w x h.
 def get_best_rect_for_window(N, k, w, h):
     # Check all permutations
     # TODO filter duplicates
@@ -548,10 +552,10 @@ def get_best_rect_for_window(N, k, w, h):
     # 0.1: proportion is predominant
     # 0.05: seems well-balanced
     c = 0.05
-    # If the new optimum is only very slightly better, keep the old value
-    # so solutions are more deterministic (itertools.permutations() always
-    # produces sequences in the same order). This delta is the allowed
-    # difference.
+    # If the new optimum is only very slightly better, keep the old
+    # value so solutions are more congruent when the parameters change
+    # slightly (itertools.permutations() always produces sequences in
+    # the same order). This delta is the allowed difference.
     delta = (w*h)**2/1e12
     seq_first = [r for r in range(0, N)]
     for seq in itertools.permutations(seq_first):
@@ -560,8 +564,9 @@ def get_best_rect_for_window(N, k, w, h):
 
         B, dim = do_diagonal_rectangulation(seq)
         E = build_rectangulation_equations(B)
-        # print(seq)
-        sol = minimize_rectangulation(E, w, h, k, c)
+        dim[0, :] *= w
+        dim[1, :] *= h
+        sol = minimize_rectangulation(E, dim, w, h, k, c)
 
         vals = sol[0, :].tolist()
         vals.extend(sol[1, :].tolist())
