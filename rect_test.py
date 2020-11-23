@@ -1,10 +1,11 @@
 import numpy as np
 import unittest
 import rectangles as r
+import rect_lagrange as rl
 from scipy.optimize import fsolve
 
 
-class TestStringMethods(unittest.TestCase):
+class TestRectangles(unittest.TestCase):
 
     def print_rects(self, R):
         print('\nRectangles:')
@@ -22,6 +23,28 @@ class TestStringMethods(unittest.TestCase):
         for i in range(N):
             mat[1, i] = sol[N + i]
         return mat
+
+    # Solve rectangulations numerically with Lagrange multipliers.
+    # With this method we need quite good initial values...
+    def test_lagrange_method(self):
+        w = 320
+        h = 180
+        k = 1.5
+        diagonals = [[0, 1, 2], [2, 1, 0], [1, 0, 2]]
+        for diag in diagonals:
+            N = len(diag)
+            B, dim = r.do_diagonal_rectangulation(diag)
+            dim[0, :] *= w
+            dim[1, :] *= h
+            E = r.build_rectangulation_equations(B)
+            # Number of lambda values will be same as number of eqs (N+1)
+            initial_est = np.ones(dim.size + N + 1)
+            initial_est[0:dim.size] = dim.reshape(dim.size)
+
+            def dfunc(X): return rl.get_derivative_from_eqs(X, E, w, h, k)
+
+            X = fsolve(dfunc, initial_est)
+            self.assertAlmostEqual(0., rl.get_optimization_f_val(X, E, w, h, k))
 
     def test_diagonal_rectangulation_3rect(self):
         w = 320
@@ -44,16 +67,6 @@ class TestStringMethods(unittest.TestCase):
                        [0.,  0.,  0.,  1., -1.,  0.],
                        [0.,  0.,  0.,  0.,  1., -1.]])
         self.assertTrue((E == Ec).all())
-        initial_est = np.ones(3*2 + 4)
-        for v in range(3):
-            initial_est[v] = w/3
-        for v in range(3, 6):
-            initial_est[v] = h/3
-
-        def dfunc(X): return r.get_derivative_from_eqs(X, E, w, h, k)
-
-        X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
         c = 0.05
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
@@ -77,8 +90,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue((B == Bc).all())
         E = r.build_rectangulation_equations(B)
         print(E)
-        X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
         print("Using sympy:")
@@ -100,21 +111,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue((B == Bc).all())
         E = r.build_rectangulation_equations(B)
         print(E)
-        # With this method we need quite good initial values...
-        initial_est[0] = 330
-        initial_est[1] = 350
-        initial_est[2] = 166
-        initial_est[3] = 100
-        initial_est[4] = 120
-        initial_est[5] = 66
-        initial_est[0] = 2*320/3
-        initial_est[1] = 2*320/3
-        initial_est[2] = 320/3
-        initial_est[3] = 180/3
-        initial_est[4] = 2*180/3
-        initial_est[5] = 180
-        X = fsolve(dfunc, initial_est)
-        print(X, r.get_optimization_f_val(X, E, w, h, k))
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
         # print("Using sympy:")
