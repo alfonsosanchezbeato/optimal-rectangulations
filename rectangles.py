@@ -495,8 +495,6 @@ def get_best_rect_for_window(N, k, w, h):
             B_best = B
             seq_best = seq
 
-        # draw_resized_rectangles(B, sol, w, h)
-
     return B_best, sol_best, seq_best
 
 
@@ -565,11 +563,6 @@ def count_number_diagonal_rects(N):
     return num_rects
 
 
-# Data modelling.
-# N: final number of squares
-# Equations contain 2*N variables: w1,..,wN,h1,..,hN
-# Final number of equations will be N+1
-
 def get_best_for_N():
     # Try 3, 7...
     N = 7
@@ -586,12 +579,13 @@ def get_best_for_N():
 
 def plot_for_N5():
     num_pt = 15
-    # For instance 400 x 200
-    num_pix = 80000
-    aspect_lb = 0.5
-    aspect_ub = 4.5
+    # For instance 320x180
+    num_pix = 57600
+    aspect_lb = 0.3
+    aspect_ub = 4.
     N = 5
-    k = 1.5
+    # Usual camera x/y ratio
+    k = 1.33
     for aspect in np.linspace(aspect_lb, aspect_ub, num_pt):
         w = math.sqrt(aspect*num_pix)
         h = w/aspect
