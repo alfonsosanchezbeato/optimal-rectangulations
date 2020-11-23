@@ -26,7 +26,7 @@ class TestRectangles(unittest.TestCase):
 
     # Solve rectangulations numerically with Lagrange multipliers.
     # With this method we need quite good initial values...
-    def test_lagrange_method(self):
+    def test_lagrange_method_numerical(self):
         w = 320
         h = 180
         k = 1.5
@@ -44,7 +44,27 @@ class TestRectangles(unittest.TestCase):
             def dfunc(X): return rl.get_derivative_from_eqs(X, E, w, h, k)
 
             X = fsolve(dfunc, initial_est)
-            self.assertAlmostEqual(0., rl.get_optimization_f_val(X, E, w, h, k))
+            self.assertAlmostEqual(0.,
+                                   rl.get_optimization_f_val(X, E, w, h, k))
+
+    # Solve rectangulations analitycally (using sympy) with Lagrange
+    # multipliers.
+    def test_lagrange_method_analitycal(self):
+        w = 320
+        h = 180
+        k = 1.5
+        # [2, 0, 4, 1, 3] can be handled, but takes a little bit
+        diagonals = [[0, 1, 2], [2, 1, 0], [1, 0, 2]]
+        for diag in diagonals:
+            N = len(diag)
+            B, dim = r.do_diagonal_rectangulation(diag)
+            dim[0, :] *= w
+            dim[1, :] *= h
+            E = r.build_rectangulation_equations(B)
+
+            sol = rl.solve_rectangle_eqs(E, w, h, k)
+            mat_sol = self.get_matrix_from_finiteset(N, sol)
+            r.draw_resized_rectangles(B, mat_sol, w, h)
 
     def test_diagonal_rectangulation_3rect(self):
         w = 320
@@ -70,11 +90,6 @@ class TestRectangles(unittest.TestCase):
         print("Using scipy minimize:")
         c = 0.05
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        print("Using sympy:")
-        sol = r.solve_rectangle_eqs(E, 400, 200, k)
-        print(sol)
-        mat_sol = self.get_matrix_from_finiteset(3, sol)
-        r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
@@ -92,18 +107,12 @@ class TestRectangles(unittest.TestCase):
         print(E)
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        print("Using sympy:")
-        sol = r.solve_rectangle_eqs(E, w, h, k)
-        print(sol)
-        mat_sol = self.get_matrix_from_finiteset(3, sol)
-        r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
         B, dim = r.do_diagonal_rectangulation([1, 0, 2])
         print(B)
         dim[0, :] *= w
         dim[1, :] *= h
-        r.draw_resized_rectangles(B, mat_sol, w, h)
         Bc = np.array([[0, 0, 2],
                        [1, 1, 2],
                        [1, 1, 2]],
@@ -113,11 +122,6 @@ class TestRectangles(unittest.TestCase):
         print(E)
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        # print("Using sympy:")
-        # sol = r.solve_rectangle_eqs(E, w, h, k)
-        # print(sol)
-        # mat_sol = self.get_matrix_from_finiteset(3, sol)
-        # r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
@@ -144,11 +148,6 @@ class TestRectangles(unittest.TestCase):
         print(E)
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        # print("Using sympy:")
-        # sol = r.solve_rectangle_eqs(E, w, h, k)
-        # print(sol)
-        # mat_sol = self.get_matrix_from_finiteset(5, sol)
-        # r.draw_resized_rectangles(B, mat_sol, w, h)
         print("Fitting rectangles:")
         print(r.solve_fit_rectangles(E, B, w, h, k))
 
@@ -191,10 +190,6 @@ class TestRectangles(unittest.TestCase):
         vals.extend(mat_sol[1, :].tolist())
         print(r.opt_f_val(vals, w, h, k, c))
 
-        # print("Using sympy:")
-        # sol = r.solve_rectangle_eqs(E, w, h, k)
-        # print(sol)
-        # mat_sol = self.get_matrix_from_finiteset(15, sol)
         r.draw_resized_rectangles(B, mat_sol, w, h)
 
         print(E)
