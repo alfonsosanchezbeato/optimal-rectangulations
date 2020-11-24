@@ -82,84 +82,74 @@ class TestRectangles(unittest.TestCase):
             mat_sol = self.get_matrix_from_finiteset(N, sol)
             r.draw_resized_rectangles(B, mat_sol, w, h)
 
-    def test_diagonal_rectangulation_3rect(self):
-        w = 320
-        h = 180
-        k = 1.5
-        c = 0.05
-        B, dim = r.do_diagonal_rectangulation([0, 1, 2])
-        print(B)
-        dim[0, :] *= w
-        dim[1, :] *= h
-        r.draw_resized_rectangles(B, dim, w, h)
-        Bc = np.array([[0, 1, 2],
-                       [0, 1, 2],
-                       [0, 1, 2]],
-                      dtype=int)
-        self.assertTrue((B == Bc).all())
-        E = r.build_rectangulation_equations(B)
-        print(E)
-        Ec = np.array([[1.,  1.,  1.,  0.,  0.,  0.],
-                       [0.,  0.,  0.,  1.,  0.,  0.],
-                       [0.,  0.,  0.,  1., -1.,  0.],
-                       [0.,  0.,  0.,  0.,  1., -1.]])
-        self.assertTrue((E == Ec).all())
-        print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, dim, w, h, k, c))
-
-        B, dim = r.do_diagonal_rectangulation([2, 1, 0])
-        print(B)
-        dim[0, :] *= w
-        dim[1, :] *= h
-        r.draw_resized_rectangles(B, dim, w, h)
-        Bc = np.array([[0, 0, 0],
-                       [1, 1, 1],
-                       [2, 2, 2]],
-                      dtype=int)
-        self.assertTrue((B == Bc).all())
-        E = r.build_rectangulation_equations(B)
-        print(E)
-        print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        B, dim = r.do_diagonal_rectangulation([1, 0, 2])
-        print(B)
-        dim[0, :] *= w
-        dim[1, :] *= h
-        Bc = np.array([[0, 0, 2],
-                       [1, 1, 2],
-                       [1, 1, 2]],
-                      dtype=int)
-        self.assertTrue((B == Bc).all())
-        E = r.build_rectangulation_equations(B)
-        print(E)
-        print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, dim, w, h, k, c))
-
-    def test_diagonal_rectangulation_5rect(self):
+    def test_scipy_minimize(self):
         w = 320
         h = 180
         k = 1.5
         c = 0.05
 
-        B, dim = r.do_diagonal_rectangulation([2, 0, 4, 1, 3])
-        print(B)
-        dim[0, :] *= w
-        dim[1, :] *= h
-        print(dim)
-        r.draw_resized_rectangles(B, dim, w, h)
-        Bc = np.array([[0, 1, 1, 3, 3],
-                       [0, 1, 1, 3, 3],
-                       [2, 2, 2, 3, 3],
-                       [2, 2, 2, 3, 3],
-                       [2, 2, 2, 4, 4]],
-                      dtype=int)
-        self.assertTrue((B == Bc).all())
-        E = r.build_rectangulation_equations(B)
-        print(E)
-        print("Using scipy minimize:")
-        print(r.minimize_rectangulation(E, dim, w, h, k, c))
+        Bc = [np.array([[0, 1, 2],
+                        [0, 1, 2],
+                        [0, 1, 2]], dtype=int),
+              np.array([[0, 0, 0],
+                        [1, 1, 1],
+                        [2, 2, 2]], dtype=int),
+              np.array([[0, 0, 2],
+                        [1, 1, 2],
+                        [1, 1, 2]], dtype=int),
+              np.array([[0, 1, 1, 3, 3],
+                        [0, 1, 1, 3, 3],
+                        [2, 2, 2, 3, 3],
+                        [2, 2, 2, 3, 3],
+                        [2, 2, 2, 4, 4]], dtype=int)]
+        Ec = [[[1.,  1.,  1.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  1.,  0.,  0.],
+               [0.,  0.,  0.,  1., -1.,  0.],
+               [0.,  0.,  0.,  0.,  1., -1.]],
+              [[1.,  0.,  0.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  1.,  1.,  1.],
+               [1., -1.,  0.,  0.,  0.,  0.],
+               [0.,  1., -1.,  0.,  0.,  0.]],
+              [[1.,  0.,  1.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  1.,  1.,  0.],
+               [1., -1.,  0.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  1.,  1., -1.]],
+              [[1.,  1.,  0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  0.,  0.,  1.,  0.,  1.,  0.,  0.],
+               [1.,  1., -1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  1., -1.,  0.,  0.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  0.,  0.,  1., -1.,  0.,  0.,  0.],
+               [0.,  0.,  0.,  0.,  0.,  0.,  1.,  1., -1., -1.]]]
+        sol_c = [np.array([[106.66666667, 106.66666667, 106.66666667],
+                           [180.,         180.,         180.]]),
+                 np.array([[320., 320., 320.],
+                           [60.,  60.,  60.]]),
+                 np.array([[203.63636358, 203.63636358, 116.36363642],
+                           [90.00000004,  89.99999996, 180.]]),
+                 np.array([[94.76075857,  94.76075848, 189.52151705,
+                            130.47848295, 130.47848295],
+                           [109.87696965, 109.87696965,  70.12303035,
+                            89.99999997,  90.00000003]])]
+        diagonals = [[0, 1, 2], [2, 1, 0], [1, 0, 2], [2, 0, 4, 1, 3]]
+        for i, diag in enumerate(diagonals):
+            B, dim = r.do_diagonal_rectangulation(diag)
+            self.assertTrue((B == Bc[i]).all())
+            dim[0, :] *= w
+            dim[1, :] *= h
+            E = r.build_rectangulation_equations(B)
+            self.assertTrue((E == Ec[i]).all())
+            sol = r.minimize_rectangulation(E, dim, w, h, k, c)
+            self.assertLess(np.sum(np.abs(sol_c[i] - sol)), 0.01)
+            r.draw_resized_rectangles(B, dim, w, h)
 
     def test_diagonal_rectangulation_15rect(self):
+        w = 320
+        h = 180
+        k = 1.5
+        # 0.1: proportion is predominant
+        # 0.05: seems good ballanced
+        c = 0.05
+
         B, dim = r.do_diagonal_rectangulation(
             [7, 12, 6, 4, 10, 1, 13, 5, 14, 8, 9, 2, 0, 3, 11])
         Bc = np.array([[0, 0, 0, 3, 3, 3, 3, 3,  3,  3,  3, 11, 11, 11, 11],
@@ -179,28 +169,12 @@ class TestRectangles(unittest.TestCase):
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
-        w = 320
-        h = 180
-        k = 1.5
         dim[0, :] *= w
         dim[1, :] *= h
         r.draw_resized_rectangles(B, dim, w, h)
-
         E = r.build_rectangulation_equations(B)
-
-        print("Using scipy minimize:")
-        # 0.1: proportion is predominant
-        # 0.05: ?
-        c = 0.05
         mat_sol = r.minimize_rectangulation(E, dim, w, h, k, c)
-        print(mat_sol)
-        vals = mat_sol[0, :].tolist()
-        vals.extend(mat_sol[1, :].tolist())
-        print(r.opt_f_val(vals, w, h, k, c))
-
         r.draw_resized_rectangles(B, mat_sol, w, h)
-
-        print(E)
 
     def test_best_3rect(self):
         N = 3
@@ -208,11 +182,10 @@ class TestRectangles(unittest.TestCase):
         w = 320
         h = 180
         B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
-        if sol.size:
-            print("Best solution is", sol)
-            r.draw_resized_rectangles(B, sol, w, h)
-        else:
-            print("No solution found")
+        sol_c = np.array([[116.36363642, 203.63636358, 203.63636358],
+                          [180.,          89.99999996,  90.00000004]])
+        self.assertLess(np.sum(np.abs(sol_c - sol)), 0.01)
+        r.draw_resized_rectangles(B, sol, w, h)
 
     def test_best_5rect(self):
         N = 5
@@ -220,11 +193,12 @@ class TestRectangles(unittest.TestCase):
         w = 320
         h = 180
         B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
-        if sol.size:
-            print("Best solution is", sol)
-            r.draw_resized_rectangles(B, sol, w, h)
-        else:
-            print("No solution found")
+        sol_c = np.array([[159.99999748, 160.00000252, 106.66666537,
+                           106.66666739, 106.66666724],
+                          [78.33555938,  78.33555938, 101.66444062,
+                           101.66444062, 101.66444062]])
+        self.assertLess(np.sum(np.abs(sol_c - sol)), 0.01)
+        r.draw_resized_rectangles(B, sol, w, h)
 
     def test_subseq_generation(self):
         subseqs = []
@@ -247,16 +221,20 @@ class TestRectangles(unittest.TestCase):
         seq = [3, 7, 5, 4, 2, 1, 6]
         pattern = [3, 1, 4, 2]
         gaps = [False, True, False, True]
-        print(r.subseq_matches_pattern(seq, [3, 5, 4, 1], pattern, gaps))
+        self.assertEqual(r.subseq_matches_pattern(seq, [3, 5, 4, 1],
+                                                  pattern, gaps), False)
         gaps = [True, True, True, True]
-        print(r.subseq_matches_pattern([4, 5, 3, 1, 2], [4, 5, 1, 2],
-                                       [3, 4, 1, 2], gaps))
+        self.assertEqual(r.subseq_matches_pattern([4, 5, 3, 1, 2],
+                                                  [4, 5, 1, 2],
+                                                  [3, 4, 1, 2], gaps), True)
         gaps = [True, False, True, False]
-        print(r.subseq_matches_pattern([4, 5, 3, 1, 2], [4, 5, 1, 2],
-                                       [3, 4, 1, 2], gaps))
+        self.assertEqual(r.subseq_matches_pattern([4, 5, 3, 1, 2],
+                                                  [4, 5, 1, 2],
+                                                  [3, 4, 1, 2], gaps), True)
         gaps = [True, True, False, True]
-        print(r.subseq_matches_pattern([4, 5, 3, 1, 2], [4, 5, 1, 2],
-                                       [3, 4, 1, 2], gaps))
+        self.assertEqual(r.subseq_matches_pattern([4, 5, 3, 1, 2],
+                                                  [4, 5, 1, 2],
+                                                  [3, 4, 1, 2], gaps), False)
 
 
 if __name__ == '__main__':
