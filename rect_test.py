@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 import rectangles as r
 import rect_lagrange as rl
+import rect_fit_sides as rfs
 from scipy.optimize import fsolve
 
 
@@ -66,6 +67,21 @@ class TestRectangles(unittest.TestCase):
             mat_sol = self.get_matrix_from_finiteset(N, sol)
             r.draw_resized_rectangles(B, mat_sol, w, h)
 
+    def test_fit_sides(self):
+        w = 320
+        h = 180
+        k = 1.5
+        diagonals = [[0, 1, 2], [2, 1, 0], [1, 0, 2], [2, 0, 4, 1, 3]]
+        for diag in diagonals:
+            N = len(diag)
+            B, dim = r.do_diagonal_rectangulation(diag)
+            dim[0, :] *= w
+            dim[1, :] *= h
+            E = r.build_rectangulation_equations(B)
+            sol = rfs.solve_fit_rectangles(E, B, w, h, k)
+            mat_sol = self.get_matrix_from_finiteset(N, sol)
+            r.draw_resized_rectangles(B, mat_sol, w, h)
+
     def test_diagonal_rectangulation_3rect(self):
         w = 320
         h = 180
@@ -90,8 +106,6 @@ class TestRectangles(unittest.TestCase):
         print("Using scipy minimize:")
         c = 0.05
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        print("Fitting rectangles:")
-        print(r.solve_fit_rectangles(E, B, w, h, k))
 
         B, dim = r.do_diagonal_rectangulation([2, 1, 0])
         print(B)
@@ -107,8 +121,6 @@ class TestRectangles(unittest.TestCase):
         print(E)
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        print("Fitting rectangles:")
-        print(r.solve_fit_rectangles(E, B, w, h, k))
         B, dim = r.do_diagonal_rectangulation([1, 0, 2])
         print(B)
         dim[0, :] *= w
@@ -122,8 +134,6 @@ class TestRectangles(unittest.TestCase):
         print(E)
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        print("Fitting rectangles:")
-        print(r.solve_fit_rectangles(E, B, w, h, k))
 
     def test_diagonal_rectangulation_5rect(self):
         w = 320
@@ -148,8 +158,6 @@ class TestRectangles(unittest.TestCase):
         print(E)
         print("Using scipy minimize:")
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
-        print("Fitting rectangles:")
-        print(r.solve_fit_rectangles(E, B, w, h, k))
 
     def test_diagonal_rectangulation_15rect(self):
         B, dim = r.do_diagonal_rectangulation(
