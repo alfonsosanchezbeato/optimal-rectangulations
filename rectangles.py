@@ -337,6 +337,8 @@ def is_baxter_permutation(seq):
     return is_baxter
 
 
+# Count number of diagonal rectangulations for N rectangles, by finding
+# out all baxter permutations for N elements.
 def count_number_diagonal_rects(N):
     num_rects = 0
     seq_first = [r for r in range(0, N)]
@@ -347,27 +349,13 @@ def count_number_diagonal_rects(N):
     return num_rects
 
 
-def get_best_for_N():
-    # Try 3, 7...
-    N = 7
-    k = 1.5
-    w = 400
-    h = 200
-    B, sol, seq = get_best_rect_for_window(N, k, w, h)
-    if sol.size:
-        print("Best solution is", sol)
-        draw_resized_rectangles(B, sol, w, h)
-    else:
-        print("No solution found")
-
-
-def plot_for_N5():
+# Draws best rectangulations while width/height ratio increases.
+def best_rect_for_w_h_ratio(N):
     num_pt = 15
     # For instance 320x180
     num_pix = 57600
     aspect_lb = 0.3
     aspect_ub = 4.
-    N = 5
     # Usual camera x/y ratio
     k = 1.33
     for aspect in np.linspace(aspect_lb, aspect_ub, num_pt):
@@ -379,11 +367,4 @@ def plot_for_N5():
 
 
 if __name__ == '__main__':
-    for ss in get_subsequence(3, [1, 2, 3, 4]):
-        print(ss)
-    print(is_baxter_permutation([1, 2, 3, 4]))
-    print(is_baxter_permutation([3, 1, 4, 2]))
-    print(is_baxter_permutation([2, 4, 1, 3]))
-    for N in range(1, 8):
-        print(count_number_diagonal_rects(N))
-    plot_for_N5()
+    best_rect_for_w_h_ratio(5)

@@ -86,6 +86,7 @@ class TestRectangles(unittest.TestCase):
         w = 320
         h = 180
         k = 1.5
+        c = 0.05
         B, dim = r.do_diagonal_rectangulation([0, 1, 2])
         print(B)
         dim[0, :] *= w
@@ -104,7 +105,6 @@ class TestRectangles(unittest.TestCase):
                        [0.,  0.,  0.,  0.,  1., -1.]])
         self.assertTrue((E == Ec).all())
         print("Using scipy minimize:")
-        c = 0.05
         print(r.minimize_rectangulation(E, dim, w, h, k, c))
 
         B, dim = r.do_diagonal_rectangulation([2, 1, 0])
@@ -225,6 +225,23 @@ class TestRectangles(unittest.TestCase):
             r.draw_resized_rectangles(B, sol, w, h)
         else:
             print("No solution found")
+
+    def test_subseq_generation(self):
+        subseqs = []
+        for ss in r.get_subsequence(3, [1, 2, 3, 4]):
+            subseqs.append(ss)
+        self.assertEqual([[1, 2, 3], [1, 2, 4], [1, 3, 4], [2, 3, 4]], subseqs)
+
+    def test_baxter_permutation(self):
+        self.assertEqual(r.is_baxter_permutation([1, 2, 3, 4]), True)
+        self.assertEqual(r.is_baxter_permutation([3, 1, 4, 2]), False)
+        self.assertEqual(r.is_baxter_permutation([2, 4, 1, 3]), False)
+
+    def test_count_number_diagonal_rects(self):
+        num_rects_for_N = [1, 2, 6, 22, 92, 422, 2074]
+        for N in range(1, 8):
+            self.assertEqual(num_rects_for_N[N - 1],
+                             r.count_number_diagonal_rects(N))
 
     def test_subseq_match_pattern(self):
         seq = [3, 7, 5, 4, 2, 1, 6]
