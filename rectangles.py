@@ -203,8 +203,10 @@ def minimize_rectangulation(E, est, w, h, k, c):
 # B: rectangulation square
 # D: Vector with dimensions (w, h) in each cell
 # w_pix: width in pixels
-# h_pix: height in pixels
-def draw_resized_rectangles(B, D, w_pix, h_pix):
+# h_pix: height in pixesl
+# kwargs: title: title for the plot
+#         save_file: file to save figure to
+def draw_resized_rectangles(B, D, w_pix, h_pix, **kwargs):
     Nx = B.shape[0]
     Ny = B.shape[1]
     fig, ax = plt.subplots()
@@ -239,6 +241,12 @@ def draw_resized_rectangles(B, D, w_pix, h_pix):
     ax.set_xlim(0, w_pix)
     ax.set_ylim(h_pix, 0)
     ax.set_aspect('equal')
+    title = kwargs.get('title', None)
+    if title:
+        plt.title(title)
+    save_file = kwargs.get('save_file', None)
+    if save_file:
+        plt.savefig(save_file, format='svg')
     plt.show()
 
 
@@ -363,7 +371,9 @@ def best_rect_for_w_h_ratio(N):
         h = w/aspect
         B, sol, seq = get_best_rect_for_window(N, k, w, h)
         print(seq)
-        draw_resized_rectangles(B, sol, w, h)
+        title = 'w/h ratio = {:.2f}'.format(aspect)
+        fname = 'best5rect_ratio{:.2f}.svg'.format(aspect)
+        draw_resized_rectangles(B, sol, w, h, title=title, save_file=fname)
 
 
 if __name__ == '__main__':
