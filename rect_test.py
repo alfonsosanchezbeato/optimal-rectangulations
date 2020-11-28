@@ -1,8 +1,10 @@
+#!/usr/bin/env python3
 import numpy as np
 import unittest
 import rectangles as r
 import rect_lagrange as rl
 import rect_fit_sides as rfs
+from random import shuffle
 from scipy.optimize import fsolve
 
 
@@ -169,6 +171,22 @@ class TestRectangles(unittest.TestCase):
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        dim[0, :] *= w
+        dim[1, :] *= h
+        r.draw_resized_rectangles(B, dim, w, h)
+        E = r.build_rectangulation_equations(B)
+        mat_sol = r.minimize_rectangulation(E, dim, w, h, k, c)
+        r.draw_resized_rectangles(B, mat_sol, w, h)
+
+    def test_diagonal_rectangulation_random(self):
+        w = 320
+        h = 180
+        k = 1.5
+        c = 0.05
+
+        rect = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        shuffle(rect)
+        B, dim = r.do_diagonal_rectangulation(rect)
         dim[0, :] *= w
         dim[1, :] *= h
         r.draw_resized_rectangles(B, dim, w, h)
