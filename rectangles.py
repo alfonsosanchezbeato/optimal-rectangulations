@@ -34,7 +34,7 @@ class RectangleLayout:
 
 # We consider a cell taken if its value points to a rectangle or if
 # outside background.
-def is_b_empty(B, N, i, j):
+def _is_b_empty(B, N, i, j):
     if i < 0 or i >= N or j < 0 or j >= N:
         return False
     return B[i, j] < 0
@@ -57,25 +57,25 @@ def do_diagonal_rectangulation(seq):
         # Top-left corner (top, left)
         top = r
         left = r
-        if is_b_empty(B, N, r-1, r-1):
+        if _is_b_empty(B, N, r-1, r-1):
             # Go left
-            while is_b_empty(B, N, top, left - 1):
+            while _is_b_empty(B, N, top, left - 1):
                 left -= 1
         else:
             # Go up
-            while top - 1 >= 0 and not is_b_empty(B, N, top - 1, left - 1):
+            while top - 1 >= 0 and not _is_b_empty(B, N, top - 1, left - 1):
                 top -= 1
         # Bottom-right corner
         bottom = r
         right = r
-        if is_b_empty(B, N, r+1, r+1):
+        if _is_b_empty(B, N, r+1, r+1):
             # Go down
-            while is_b_empty(B, N, bottom + 1, right):
+            while _is_b_empty(B, N, bottom + 1, right):
                 bottom += 1
         else:
             # Go right
             while right + 1 <= N - 1 and \
-                  not is_b_empty(B, N, bottom + 1, right + 1):
+                  not _is_b_empty(B, N, bottom + 1, right + 1):
                 right += 1
 
         dim[0, r] = (right - left + 1)/N
@@ -137,6 +137,7 @@ def build_rectangulation_equations(B):
     return E
 
 
+# Get value for target function
 def opt_f_val(X, w, h, k, c):
     N = len(X)//2
     v = 0
@@ -150,6 +151,7 @@ def opt_f_val(X, w, h, k, c):
     return v
 
 
+# Get Jacobian for target function
 def opt_jac_val(X, w, h, k, c):
     N = len(X)//2
     diff = np.zeros(2*N)
@@ -167,7 +169,7 @@ def opt_jac_val(X, w, h, k, c):
     return diff
 
 
-# Variables to optimize are [w_1,..,w_N,h_1,..,h_N]
+# Variables to minimize for are [w_1,..,w_N,h_1,..,h_N]
 # E: rectangulation equations coefficients (N+1)x2N matrix
 # est: initial estimation for the sizes in a 2xN matrix
 # w: width of bounding rectangle
@@ -290,7 +292,7 @@ def get_best_rect_for_window(N, k, w, h):
     return B_best, sol_best, seq_best
 
 
-# Returns True if subseq matches the pattern
+# Returns True if subseq matches the generalized pattern
 # pattern: contains numbers
 # gaps: booleans list, gaps[i]=true if dash before pattern[i]
 def subseq_matches_pattern(seq, subseq, pattern, gaps):
@@ -322,6 +324,7 @@ def subseq_matches_pattern(seq, subseq, pattern, gaps):
     return True
 
 
+# Generator, get subsequences of n elements from seq
 def get_subsequence(n, seq):
     if n == 0:
         yield []
@@ -332,6 +335,7 @@ def get_subsequence(n, seq):
             yield subseq
 
 
+# Returns true if seq is a Baxter permutation
 def is_baxter_permutation(seq):
     is_baxter = True
     for subseq in get_subsequence(4, seq):

@@ -90,6 +90,9 @@ def get_matrix_from_solution(N, sol):
 # system of derivatives analytically, by using sympy. (v2)
 def solve_rectangle_eqs(E, w, h, k):
     n_rect_vars = E.shape[1]
+    # For a fully symbolic solution, uncomment next line and specify
+    # symbols in solver:
+    # w, h, k = sp.symbols('w h k')
     N = n_rect_vars//2
     dF = [0]*(3*N + 1)
     size_avg = w*h/N
@@ -128,7 +131,8 @@ def solve_rectangle_eqs(E, w, h, k):
     symbols.extend(L)
     # 1. nonlinsolve() if Q != 0
     # 2. linsolve() if Q == 0
-    # 3. solve() seems to work better than nonlinsolve(), who knows why...
+    # 3. solve() seems to work better than nonlinsolve(), but only if
+    #    you run sp.solve(dF), not sp.solve(dF, symbols), which is weird.
     #    To use it, convert solution to return a FiniteSet.
     # return sp.nonlinsolve(dF, symbols)
     # return sp.linsolve(dF, symbols)
