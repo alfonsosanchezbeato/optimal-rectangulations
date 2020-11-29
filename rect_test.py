@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import math
 import numpy as np
 import unittest
 import rectangles as r
@@ -66,6 +67,7 @@ class TestRectangles(unittest.TestCase):
             E = r.build_rectangulation_equations(B)
 
             sol = rl.solve_rectangle_eqs(E, w, h, k)
+            print(sol)
             mat_sol = self.get_matrix_from_finiteset(N, sol)
             r.draw_resized_rectangles(B, mat_sol, w, h)
 
@@ -171,9 +173,9 @@ class TestRectangles(unittest.TestCase):
                        [7, 7, 7, 7, 7, 7, 7, 7, 12, 12, 12, 12, 12, 13, 14]],
                       dtype=int)
         self.assertTrue((B == Bc).all())
+        r.draw_resized_rectangles(B, dim, 1, 1)
         dim[0, :] *= w
         dim[1, :] *= h
-        r.draw_resized_rectangles(B, dim, w, h)
         E = r.build_rectangulation_equations(B)
         mat_sol = r.minimize_rectangulation(E, dim, w, h, k, c)
         r.draw_resized_rectangles(B, mat_sol, w, h)
@@ -186,35 +188,40 @@ class TestRectangles(unittest.TestCase):
 
         rect = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         shuffle(rect)
+        print(rect)
         B, dim = r.do_diagonal_rectangulation(rect)
+        r.draw_resized_rectangles(B, dim, 1, 1)
         dim[0, :] *= w
         dim[1, :] *= h
-        r.draw_resized_rectangles(B, dim, w, h)
         E = r.build_rectangulation_equations(B)
         mat_sol = r.minimize_rectangulation(E, dim, w, h, k, c)
         r.draw_resized_rectangles(B, mat_sol, w, h)
 
     def test_best_3rect(self):
         N = 3
-        k = 1.5
+        c = 0.05
+        k = 1.33
         w = 320
         h = 180
-        B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
-        sol_c = np.array([[116.36363642, 203.63636358, 203.63636358],
-                          [180.,          89.99999996,  90.00000004]])
+        B, sol, seq = r.get_best_rect_for_window(N, c, k, w, h)
+        print(sol)
+        sol_c = np.array([[116.36363645, 203.63636355, 203.63636355],
+                          [180.,          89.99999993,  90.00000007]])
         self.assertLess(np.sum(np.abs(sol_c - sol)), 0.01)
         r.draw_resized_rectangles(B, sol, w, h)
 
     def test_best_5rect(self):
         N = 5
-        k = 1.5
+        c = 0.05
+        k = 1.33
         w = 320
         h = 180
-        B, sol, seq = r.get_best_rect_for_window(N, k, w, h)
-        sol_c = np.array([[159.99999748, 160.00000252, 106.66666537,
-                           106.66666739, 106.66666724],
-                          [78.33555938,  78.33555938, 101.66444062,
-                           101.66444062, 101.66444062]])
+        B, sol, seq = r.get_best_rect_for_window(N, c, k, w, h)
+        print(sol)
+        sol_c = np.array([[159.99999938, 160.00000062, 106.66666643,
+                           106.6666668, 106.66666677],
+                          [77.17563584, 77.17563584, 102.82436416,
+                           102.82436416, 102.82436416]])
         self.assertLess(np.sum(np.abs(sol_c - sol)), 0.01)
         r.draw_resized_rectangles(B, sol, w, h)
 
@@ -253,6 +260,25 @@ class TestRectangles(unittest.TestCase):
         self.assertEqual(r.subseq_matches_pattern([4, 5, 3, 1, 2],
                                                   [4, 5, 1, 2],
                                                   [3, 4, 1, 2], gaps), False)
+
+    # Draws best rectangulations while width/height ratio increases.
+    def test_best_rect_for_w_h_ratio(self):
+        N = 5
+        c = 0.05
+        num_pt = 15
+        # For instance 320x180
+        num_pix = 57600
+        aspect_lb = 0.3
+        aspect_ub = 4.
+        # Usual camera x/y ratio
+        k = 1.33
+        for aspect in np.linspace(aspect_lb, aspect_ub, num_pt):
+            w = math.sqrt(aspect*num_pix)
+            h = w/aspect
+            B, sol, seq = r.get_best_rect_for_window(N, c, k, w, h)
+            print(seq)
+            title = 'w/h ratio = {:.2f}'.format(aspect)
+            r.draw_resized_rectangles(B, sol, w, h, title=title)
 
 
 if __name__ == '__main__':

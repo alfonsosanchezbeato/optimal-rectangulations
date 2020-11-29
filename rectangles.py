@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import itertools
-import math
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -254,16 +253,16 @@ def draw_resized_rectangles(B, D, w_pix, h_pix, **kwargs):
 
 # Calculate best rectangulation in the sense of equal area distribution and
 # best aspect ration for N rectangles and background size w x h.
-def get_best_rect_for_window(N, k, w, h):
+# c: balance between area and proportions
+#    0.1: proportion is predominant
+#    0.05: seems well-balanced
+def get_best_rect_for_window(N, c, k, w, h):
     # Check all permutations
     # TODO filter duplicates
     f_best = sys.float_info.max
     sol_best = np.zeros(0)
     B_best = None
     seq_best = None
-    # 0.1: proportion is predominant
-    # 0.05: seems well-balanced
-    c = 0.05
     # If the new optimum is only very slightly better, keep the old
     # value so solutions are more congruent when the parameters change
     # slightly (itertools.permutations() always produces sequences in
@@ -359,26 +358,3 @@ def count_number_diagonal_rects(N):
             num_rects += 1
 
     return num_rects
-
-
-# Draws best rectangulations while width/height ratio increases.
-def best_rect_for_w_h_ratio(N):
-    num_pt = 15
-    # For instance 320x180
-    num_pix = 57600
-    aspect_lb = 0.3
-    aspect_ub = 4.
-    # Usual camera x/y ratio
-    k = 1.33
-    for aspect in np.linspace(aspect_lb, aspect_ub, num_pt):
-        w = math.sqrt(aspect*num_pix)
-        h = w/aspect
-        B, sol, seq = get_best_rect_for_window(N, k, w, h)
-        print(seq)
-        title = 'w/h ratio = {:.2f}'.format(aspect)
-        fname = 'best5rect_ratio{:.2f}.svg'.format(aspect)
-        draw_resized_rectangles(B, sol, w, h, title=title, save_file=fname)
-
-
-if __name__ == '__main__':
-    best_rect_for_w_h_ratio(5)
