@@ -258,7 +258,6 @@ def draw_resized_rectangles(B, D, w_pix, h_pix, **kwargs):
 #    0.05: seems well-balanced
 def get_best_rect_for_window(N, c, k, w, h):
     # Check all permutations
-    # TODO filter duplicates
     f_best = sys.float_info.max
     sol_best = np.zeros(0)
     B_best = None
